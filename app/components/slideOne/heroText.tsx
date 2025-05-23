@@ -82,11 +82,11 @@ export default function HeroText() {
       </motion.h1>
       <motion.button className="
       sm:text-[1rem]
-      lg:text-[1.5rem]
+      lg:text-[1.25rem]
       select-none
       cursor-pointer" 
       style={styles.button} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: animationTokens.duration4, delay: animationTokens.delay4 }}>
-        <a href="#product-page-marker" style={styles.buttonText}>BUY NOW</a>
+        <a href="#product-page-marker" style={styles.buttonText}>PURCHASE</a>
       </motion.button>
     </div>
     </>

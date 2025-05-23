@@ -94,7 +94,7 @@ export default function HowItWorksCards() {
             id: '2',
             heading: 'Scan the Code',
             icon: <FaQrcode />,
-            description: 'Flip the fragrance. Scan the QR code on the back of the bottle.'
+            description: 'Scan the QR code on the bottle.'
         },
         {
             id: '3',

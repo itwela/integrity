@@ -34,7 +34,7 @@ export default function IntegrityHeader({ showHeader }: IntegrityHeaderProps) {
 
     const headerItems = [
         {
-            text: 'Buy Now',
+            text: 'Purchase',
             link: '#product-page-marker'
         },
         {

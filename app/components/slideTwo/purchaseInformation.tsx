@@ -84,7 +84,7 @@ export default function PurchaseInformation() {
                 className="lg:text-[0.75rem] select-none"
                 initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.priceSubText}>{`Not just an album. Not just a scent. Not just a story.`}</motion.h1>
                 <motion.button id="product-buy-now-button" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1 * 1.25, delay: animationTokens.duration1 * 1.25 }} style={styles.button}>
-                    <p className="select-none" style={styles.buttonText}>BUY NOW</p>
+                    <p className="select-none" style={styles.buttonText}>PURCHASE</p>
                 </motion.button>
             </div>
 
