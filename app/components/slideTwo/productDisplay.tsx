@@ -23,10 +23,15 @@ export default function ProductDisplay() {
     ]
 
     return (
-        <div className="flex flex-col h-[70%] gap-[10px] items-center justify-center">
+        <>
+        
+        {/* NOTE - DESKTOP PRODUCT DISPLAY */}
+        <div className="sm:flex hidden flex-col h-[70%] gap-[10px] items-center justify-center">
             
             {/* NOTE - PRODUCT DISPLAY IMAGE */}
-            <div  className="w-[500px] relative  aspect-[4/3] -z-10 flex flex-row items-center justify-center">
+            <div  className="
+                lg:w-[500px] relative  aspect-[4/3] -z-10 flex flex-row items-center justify-center
+                ">
                 <div className="absolute top-0 left-0 w-full h-full">
                     <Image fill className="object-contain" src="/assets/images/integrity-product-shot.png" alt="integrity-cover" priority />
                 </div>
@@ -53,5 +58,12 @@ export default function ProductDisplay() {
             </div>
 
         </div>
+
+        {/* NOTE - MOBILE PRODUCT DISPLAY */}
+        <div className="sm:hidden flex flex-col h-[70%] gap-[10px] items-center justify-center">
+
+        </div>
+
+        </>
     )
 }

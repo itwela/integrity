@@ -9,8 +9,6 @@ export default function PurchaseInformation() {
 
     const styles = {
         container: {
-            display: 'flex',
-            flexDirection: 'row' as const,
             padding: '0 5%',
             width: '100%',
             justifyContent: 'space-between' as const,
@@ -37,6 +35,7 @@ export default function PurchaseInformation() {
             padding: '10px 20px',
             width: '100%',
             borderRadius: '200px',
+            cursor: 'pointer',
         },
         buttonText: {
             fontWeight: 'bold',
@@ -52,11 +51,13 @@ export default function PurchaseInformation() {
     ]
  
     return (
-        <div className="h-[10%]" style={styles.container}>
+        <>
+        {/* NOTE - DESKTOP PURCHASE INFORMATION */}
+        <div className="sm:flex hidden h-[10%]" style={styles.container}>
             
             <div className="w-[65%]  h-max flex flex-row gap-4 items-center">
                 <motion.h1
-                className="lg:text-[5rem]"
+                className="lg:text-[5rem] select-none"
                 initial={{ opacity: 0, y: -10 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: false }}
@@ -66,7 +67,7 @@ export default function PurchaseInformation() {
                 <div className="flex flex-col">
                     {priceText.map((text, index) => (
                         <motion.h1
-                        className="lg:text-[0.80rem]"
+                        className="lg:text-[0.80rem] select-none"
                         key={index}
                         initial={{ opacity: 0, y: -10 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -80,13 +81,20 @@ export default function PurchaseInformation() {
 
             <div className=" w-[35%] flex flex-col h-max gap-[10px] items-center">
                 <motion.h1 
-                className="lg:text-[0.75rem]"
+                className="lg:text-[0.75rem] select-none"
                 initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.priceSubText}>{`Not just an album. Not just a scent. Not just a story.`}</motion.h1>
                 <motion.button id="product-buy-now-button" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1 * 1.25, delay: animationTokens.duration1 * 1.25 }} style={styles.button}>
-                    <p style={styles.buttonText}>BUY NOW</p>
+                    <p className="select-none" style={styles.buttonText}>BUY NOW</p>
                 </motion.button>
             </div>
 
         </div>
+
+        {/* NOTE - MOBILE PURCHASE INFORMATION */}
+        <div className="sm:hidden flex flex-col h-[10%] gap-[10px] items-center">
+
+        </div>
+
+        </>
     )
 }
