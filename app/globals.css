@@ -24,3 +24,34 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+
+  
+@font-face {
+  font-family: main;
+  src: url("../public/assets/fonts/LibreBaskerville-Regular.ttf")
+} 
+
+@font-face {
+  font-family: boldMain;
+  src: url("../public/assets/fonts/libre-baskerville-bold.ttf")
+} 
+
+@font-face {
+  font-family: secondary;
+  src: url("../public/assets/fonts/Inter-VariableFont.ttf")
+} 
+
+
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+

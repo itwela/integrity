@@ -1,103 +1,82 @@
+'use client'
+
 import Image from "next/image";
+import HeroText from "./components/slideOne/heroText";
+import IntegrityHeader from "./components/header";
+import ProductDisplay from "./components/slideTwo/productDisplay";
+import PurchaseInformation from "./components/slideTwo/purchaseInformation";
+import { useScroll, motion, useTransform } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { colors } from "./tokens/colors";
+import HowItWorksCards from "./components/slideThree/howItWorksCards";
+import { animationTokens } from "@/app/tokens/animationTokens";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [opacity, setOpacity] = useState(0);
+  const { scrollYProgress } = useScroll();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      setOpacity(latest);
+    });
+
+    return () => unsubscribe();
+  }, [scrollYProgress]);
+
+  const styles = {
+    hIWHeader: {
+      fontWeight: 'bold',
+      color: colors.primary,
+      textAlign: 'center' as const,
+      fontFamily: 'boldMain',
+    },
+    hIWSubHeader: {
+      fontWeight: 'bold',
+      color: colors.white,
+      textAlign: 'center' as const,
+    }
+  }
+
+  return (
+    // NOTE - SLIDE ONE
+    <>
+    {/* NOTE - HEADER */}
+    <IntegrityHeader/>
+
+    {/* NOTE - BACKGROUND IMAGE */}
+    <div className="fixed top-0 left-0 w-full h-full -z-10">
+
+        <div className="bg-black w-full h-full absolute top-0 left-0 z-[1]" style={{ opacity: opacity }}></div>
+        <Image fill className="object-cover w-full h-full" src="/assets/images/integrity-albumn-cover.png" alt="integrity-cover" priority />
+    
     </div>
+
+    {/* NOTE - HERO TEXT */}
+    <div className="flex relative  h-screen w-full place-content-center">
+      <HeroText />
+    </div>
+
+    {/* NOTE - PRODUCT DISPLAY */}
+    <div className="flex gap-[30px] relative flex-col h-screen w-full place-content-center">
+      <div id="product-page-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
+      <ProductDisplay />
+      <PurchaseInformation />
+    </div>
+
+    {/* NOTE - HOW IT WORKS */}
+    <div className="flex relative gap-[15px] flex-col h-screen w-full place-content-center">
+      
+        <div className="flex flex-col relative items-center justify-center">
+          <div id="how-it-works-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
+          <motion.h1 
+          className="lg:text-[5rem] leading-none"
+          initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration2 * 1.25, delay: animationTokens.duration2 * 1.25 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+          <motion.h2 initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
+        </div>
+      
+      <HowItWorksCards/>
+    </div>
+
+    </>
   );
 }
