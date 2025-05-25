@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     console.log('adding to zapier', body.name);
     console.log('adding to zapier', body.email);
 
-    await convex.mutation(api.zapier.insertZapData, {
+    await convex.mutation(api.stripe.insertStripeData, {
       email: body.email,
       payment_amount: body.payment_amount,
       payment_status: body.payment_status,

@@ -2,7 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  zapierLogs: defineTable({
+  stripeLogs: defineTable({
     email: v.string(),
     payment_amount: v.number(),
     payment_status: v.string(),

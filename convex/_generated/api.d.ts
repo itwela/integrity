@@ -15,7 +15,7 @@ import type {
 } from "convex/server";
 import type * as audiobooks from "../audiobooks.js";
 import type * as music from "../music.js";
-import type * as zapier from "../zapier.js";
+import type * as stripeLogs from "../stripeLogs.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -28,7 +28,7 @@ import type * as zapier from "../zapier.js";
 declare const fullApi: ApiFromModules<{
   audiobooks: typeof audiobooks;
   music: typeof music;
-  zapier: typeof zapier;
+  stripeLogs: typeof stripeLogs;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

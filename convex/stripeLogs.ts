@@ -1,7 +1,7 @@
 import { mutation } from './_generated/server';
 import { v } from 'convex/values';
 
-export const insertZapData = mutation({
+export const insertStripeData = mutation({
   args: {
     email: v.string(),
     payment_amount: v.number(),
@@ -11,7 +11,7 @@ export const insertZapData = mutation({
     name: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert('zapierLogs', {
+    await ctx.db.insert('stripeLogs', {
       email: args.email,
       payment_amount: args.payment_amount,
       payment_status: args.payment_status,
