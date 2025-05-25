@@ -1,12 +1,8 @@
 'use client'
 
-import { colors } from "@/app/tokens/colors"
-import { FaShoppingBag } from "react-icons/fa";
-import { FaQrcode } from "react-icons/fa";
-import { FaLockOpen } from "react-icons/fa";
+import { colors } from "@/app/tokens/colors";
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { animationTokens } from "@/app/tokens/animationTokens";
+import { FaLockOpen, FaQrcode, FaShoppingBag } from "react-icons/fa";
 
 export default function HowItWorksCards() {
     const [hoveredCard, setHoveredCard] = useState<string | null>(null);
@@ -110,9 +106,10 @@ export default function HowItWorksCards() {
             {/* NOTE - DESKTOP CARDS */}
             <div
                 className="
-        hidden
-        sm:flex flex-row 
-        "
+                    hidden
+                    lg:flex 
+                    flex-row 
+                "
                 style={styles.cardContainer}>
                 {cardData.map((card, index) => (
                     <React.Fragment key={card.id}>
@@ -166,26 +163,77 @@ export default function HowItWorksCards() {
                 ))}
             </div>
 
-            {/* NOTE - MOBILE CARDS */}
-            <div className="sm:hidden h-max py-5 flex flex-col gap-[10px] items-center justify-start snap-y snap-mandatory">
+            {/* NOTE - TABLET CARDS */}
+            <div className="hidden sm:flex lg:hidden flex-col h-full py-5 flex flex-col gap-[10px] items-center justify-start snap-y snap-mandatory">
                 {cardData.map((card, index) => (
                     <React.Fragment key={card.id}>
-                        <div className="flex flex-col justify-center items-center w-full h-max snap-start">
 
-                            <div 
-                            style={{ backgroundColor: colors["dark-grey"], fontFamily: 'boldMain' }} 
-                            className="flex flex-col rounded-lg p-[20px] justify-center items-center w-[80%] h-max gap-[50px] snap-start">
-                                
+                        {/* NOTE - CARD */}
+                        <div
+                            className="w-[250px] h-[350px] hover:scale-105"
+                            style={styles.card}
+                            onMouseEnter={() => handleCardHover(card.id)}
+                            onMouseLeave={() => handleCardLeave()}>
+
+                            {/* NOTE - HEADING AND ID */}
+                            <div className="flex flex-row justify-between items-center w-full">
+                                <h1
+                                    className="lg:text-[0.8rem] select-none"
+                                    style={styles.hIWCardHeader}>{card.heading}</h1>
+                                <h1
+                                    style={styles.hIWCardId}
+                                    className="lg:text-[1.5rem] select-none"
+                                >{card.id}</h1>
+                            </div>
+
+                            <div
+                                className="text-[6rem] select-none"
+                                style={styles.iconContainer}>
+                                {card.icon}
+                            </div>
+
+                            <p
+                                className="lg:text-[1rem] select-none"
+                                style={{
+                                    ...styles.hIWCardDescription,
+                                    color: hoveredCard === card.id ? colors.white : colors.grey
+                                }}>{card.description}</p>
+
+                        </div>
+
+                        {/* NOTE - CONNECTOR DOTS */}
+                        {index < cardData.length - 1 && (
+                            <div className="flex flex-col gap-[5px]" style={styles.connector}>
+                                <div style={styles.dot}></div>
+                                <div style={styles.dot}></div>
+                                <div style={styles.dot}></div>
+                            </div>
+                        )}
+
+                    </React.Fragment>
+                ))}
+            </div>
+
+            {/* NOTE - MOBILE CARDS */}
+            <div className="sm:hidden h-max py-5 flex flex-col gap-[50px]   items-center justify-start snap-y snap-mandatory">
+                {cardData.map((card) => (
+                    <React.Fragment key={card.id}>
+                        <div className="flex flex-col justify-center items-center w-full max-w-[300px] h-max snap-start">
+
+                            <div
+                                style={{ backgroundColor: colors["dark-grey"], fontFamily: 'boldMain' }}
+                                className="flex flex-col rounded-lg p-[20px] justify-center items-center w-[80%] h-max gap-[50px] snap-start">
+
                                 <div className="flex flex-row justify-between items-center w-full">
-                                    <h1 className="text-[0.90rem] select-none">{card.heading}</h1>
-                                    <h1 style={{color: colors.grey}} className="text-[1.5rem] select-none">{card.id}</h1>
+                                    <h1 style={{ color: colors.white }} className="text-[1.1rem] select-none font-bold">{card.heading}</h1>
+                                    <h1 style={{ color: colors.grey }} className="text-[1.75rem] select-none">{card.id}</h1>
                                 </div>
-                                
+
                                 <div className="text-[6rem] select-none" style={styles.iconContainer}>
                                     {card.icon}
                                 </div>
-                                
-                                <p className="text-[0.90rem] select-none" style={styles.hIWCardDescription}>
+
+                                <p className="text-[0.90rem] select-none" style={{ color: colors.grey }}>
                                     {card.description}
                                 </p>
 
