@@ -2,16 +2,10 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  emailValidation: defineTable({
-    email: v.string(),
-    isAuthenticated: v.boolean(),
-    createdAt: v.optional(v.number()),
-  }),
   zapierLogs: defineTable({
     email: v.string(),
     payment_amount: v.number(),
     payment_status: v.string(),
-    receipt_url: v.string(),
     product_id: v.string(),
     createdAt: v.number(),
     name: v.string(),

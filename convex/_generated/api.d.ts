@@ -14,7 +14,6 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as audiobooks from "../audiobooks.js";
-import type * as emailValidation from "../emailValidation.js";
 import type * as music from "../music.js";
 import type * as zapier from "../zapier.js";
 
@@ -28,7 +27,6 @@ import type * as zapier from "../zapier.js";
  */
 declare const fullApi: ApiFromModules<{
   audiobooks: typeof audiobooks;
-  emailValidation: typeof emailValidation;
   music: typeof music;
   zapier: typeof zapier;
 }>;
