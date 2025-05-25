@@ -1,4 +1,4 @@
-import { mutation } from './_generated/server';
+import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
 export const insertStripeData = mutation({
@@ -19,5 +19,16 @@ export const insertStripeData = mutation({
       name: args.name,
       createdAt: args.createdAt,
     });
+  },
+});
+
+export const checkEmailAccess = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query('stripeLogs')
+      .filter((q) => q.eq(q.field('email'), args.email))
+      .first();
+    return !!record;
   },
 }); 

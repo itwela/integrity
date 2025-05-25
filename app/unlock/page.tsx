@@ -17,7 +17,7 @@ export default function Unlock() {
     const [hasAccess, setHasAccess] = React.useState(false);
     const [email, setEmail] = React.useState("");
     const [isEmailValid, setIsEmailValid] = React.useState(false);
-    const { musicFiles, audioBookFiles, audioCategories } = useAudioContext();
+    const { musicFiles, audioBookFiles, audioCategories, checkEmailAccess } = useAudioContext();
     const [audioIndex, setAudioIndex] = React.useState(0);
     const [showAudioPlayer, setShowAudioPlayer] = React.useState(false);
     const [selectedTrack, setSelectedTrack] = React.useState<IntegrityTrack | null>(null);
@@ -55,9 +55,16 @@ export default function Unlock() {
         playTrack(trackIndex, currentAudioData.tracks);
     }
 
-    const handleAccess = () => {
-        localStorage.setItem('integrity-release-email', email);
-        setHasAccess(true);
+    const handleAccess = async () => {
+        // Check if email exists in stripeLogs table
+        const hasValidEmail = await checkEmailAccess(email);
+        
+        if (hasValidEmail) {
+            localStorage.setItem('integrity-release-email', email);
+            setHasAccess(true);
+        } else {
+            alert('Email not found in our records. Please ensure you have completed your purchase.');
+        }
     }
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {

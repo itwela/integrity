@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useState, useRef } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { ConvexHttpClient } from 'convex/browser';
+
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
 interface AudioFile {
     id: number;
@@ -42,6 +45,7 @@ interface AudioContextProviderProps {
     playTrack: (index: number, playlist: AudioFile[]) => void;
     loadPlaylist: (playlist: AudioFile[]) => void;
     audioCategories: string[];
+    checkEmailAccess: (email: string) => Promise<boolean>;
 }
 
 const AudioContext = createContext<AudioContextProviderProps | null>(null);
@@ -93,6 +97,16 @@ export default function AudioContextProvider({ children }: { children: React.Rea
         const prevIndex = (currentTrackIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
         playTrack(prevIndex, currentPlaylist);
     };
+
+    const checkEmailAccess = async (email: string): Promise<boolean> => {
+        try {
+            const hasValidEmail = await convex.query(api.stripeLogs.checkEmailAccess, { email });
+            return hasValidEmail;
+        } catch (error) {
+            console.error('Error checking email access:', error);
+            return false;
+        }
+    };
     
     return (
         <>
@@ -121,7 +135,8 @@ export default function AudioContextProvider({ children }: { children: React.Rea
                 skipToPrevious,
                 playTrack,
                 loadPlaylist,
-                audioCategories
+                audioCategories,
+                checkEmailAccess
             }}>
                 {children}
             </AudioContext.Provider>
