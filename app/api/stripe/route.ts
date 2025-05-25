@@ -17,17 +17,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // Extract data from Stripe payment intent succeeded event
-    const paymentIntent = body.data.object;
+    // Extract data from Stripe checkout session completed event
+    const checkoutSession = body.data.object;
     
-    // Extract required fields from payment intent
-    const email = paymentIntent.receipt_email || 'no-email-provided';
-    const name = paymentIntent.shipping?.name || 'no-name-provided';
-    const payment_amount = paymentIntent.amount_received; // in cents
-    const payment_status = paymentIntent.status;
-    const payment_intent_id = paymentIntent.id;
+    // Extract required fields from checkout session
+    const email = checkoutSession.customer_details?.email || 'no-email-provided';
+    const name = checkoutSession.customer_details?.name || 'no-name-provided';
+    const payment_amount = checkoutSession.amount_total; // in cents
+    const payment_status = checkoutSession.payment_status;
+    const session_id = checkoutSession.id;
 
-    console.log('Stripe payment intent', payment_intent_id);
+    console.log('Stripe checkout session', session_id);
     console.log('Customer name:', name);
     console.log('Customer email:', email);
 
@@ -35,12 +35,12 @@ export async function POST(request: Request) {
       email: email,
       payment_amount: payment_amount,
       payment_status: payment_status,
-      product_id: payment_intent_id,
+      product_id: session_id,
       name: name,
       createdAt: Date.now(),
     });
 
-    console.log('Successfully processed Stripe payment intent');
+    console.log('Successfully processed Stripe checkout session');
 
     return NextResponse.json({ status: 'ok' });
   } catch (err) {
