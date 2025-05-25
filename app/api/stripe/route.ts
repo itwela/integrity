@@ -18,29 +18,14 @@ export async function POST(request: Request) {
     const body = await request.json();
     
     // Extract data from Stripe payment intent succeeded event
-    const paymentIntent = body.object;
+    const paymentIntent = body.data.object;
     
-    if (!paymentIntent || paymentIntent.object !== 'payment_intent') {
-      return NextResponse.json(
-        { error: 'Invalid payment intent data' },
-        { status: 400 }
-      );
-    }
-
     // Extract required fields from payment intent
     const email = paymentIntent.receipt_email || 'no-email-provided';
     const name = paymentIntent.shipping?.name || 'no-name-provided';
     const payment_amount = paymentIntent.amount_received; // in cents
     const payment_status = paymentIntent.status;
     const payment_intent_id = paymentIntent.id;
-
-    // Validate required fields
-    if (!payment_amount || !payment_status) {
-      return NextResponse.json(
-        { error: 'Missing required payment intent data' },
-        { status: 400 }
-      );
-    }
 
     console.log('Stripe payment intent', payment_intent_id);
     console.log('Customer name:', name);
