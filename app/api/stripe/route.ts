@@ -17,32 +17,32 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // Extract data from Stripe checkout session completed event
-    const checkoutSession = body.object;
+    // Extract data from Stripe payment intent succeeded event
+    const paymentIntent = body.object;
     
-    if (!checkoutSession || checkoutSession.object !== 'checkout.session') {
+    if (!paymentIntent || paymentIntent.object !== 'payment_intent') {
       return NextResponse.json(
-        { error: 'Invalid checkout session data' },
+        { error: 'Invalid payment intent data' },
         { status: 400 }
       );
     }
 
-    // Extract required fields from checkout session
-    const email = checkoutSession.customer_details?.email;
-    const name = checkoutSession.customer_details?.name;
-    const payment_amount = checkoutSession.amount_total; // in cents
-    const payment_status = checkoutSession.payment_status;
-    const session_id = checkoutSession.id;
+    // Extract required fields from payment intent
+    const email = paymentIntent.receipt_email || 'no-email-provided';
+    const name = paymentIntent.shipping?.name || 'no-name-provided';
+    const payment_amount = paymentIntent.amount_received; // in cents
+    const payment_status = paymentIntent.status;
+    const payment_intent_id = paymentIntent.id;
 
     // Validate required fields
-    if (!email || !name || !payment_amount || !payment_status) {
+    if (!payment_amount || !payment_status) {
       return NextResponse.json(
-        { error: 'Missing required checkout session data' },
+        { error: 'Missing required payment intent data' },
         { status: 400 }
       );
     }
 
-    console.log('Stripe checkout session', checkoutSession.id);
+    console.log('Stripe payment intent', payment_intent_id);
     console.log('Customer name:', name);
     console.log('Customer email:', email);
 
@@ -50,12 +50,12 @@ export async function POST(request: Request) {
       email: email,
       payment_amount: payment_amount,
       payment_status: payment_status,
-      product_id: session_id,
+      product_id: payment_intent_id,
       name: name,
       createdAt: Date.now(),
     });
 
-    console.log('Successfully processed Stripe checkout session');
+    console.log('Successfully processed Stripe payment intent');
 
     return NextResponse.json({ status: 'ok' });
   } catch (err) {
