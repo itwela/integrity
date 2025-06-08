@@ -120,11 +120,12 @@ export default function ProductDisplay() {
                 {/* NOTE - PRODUCT DISPLAY IMAGE */}
                 <div className="
                 w-[500px] 
-                relative  aspect-[4/3] -z-10 flex flex-row items-center justify-center
                 before:absolute before:inset-0 before:bg-[#FFD700] before:opacity-20 before:blur-[2000px]
+                relative aspect-[4/3] -z-10 flex flex-row items-center justify-center
+                before:absolute before:inset-0 
                 ">
                     <div className="absolute top-0 left-0 w-full h-full">
-                        <Image fill className="object-contain" src="/assets/images/integrity-product-shot.png" alt="integrity-cover" priority />
+                        <Image fill className="object-cover w-full h-full" src="/assets/images/covernobg.png" alt="integrity-new" priority />
                     </div>
                 </div>
 
@@ -159,10 +160,10 @@ export default function ProductDisplay() {
                 {/* NOTE - PRICE TEXT */}
 
                 {/* NOTE - PRODUCT DISPLAY IMAGE */}
-                <div className="w-[450px] relative aspect-[4/3] -z-10 flex flex-row items-center justify-center before:absolute before:inset-0 before:bg-[#FFD700] before:opacity-20 before:blur-[2000px]">
-                    <div className="w-[450px] relative  aspect-[4/3] z-10 flex flex-row items-center justify-center">
-                        <div className="absolute top-0 left-0 w-full h-full">
-                            <Image fill className="object-contain" src="/assets/images/integrity-product-shot.png" alt="integrity-cover" priority />
+                <div className="w-[450px] relative aspect-[4/3] -z-10 flex items-center justify-center before:absolute before:inset-0 before:bg-[#FFD700] before:opacity-20 before:blur-[2000px]">
+                    <div className="w-[450px] relative aspect-[4/3] z-10 flex items-center justify-center">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                            <Image fill className="object-cover" src="/assets/images/covernobg.png" alt="integrity-cover" priority />
                         </div>
                     </div>
                 </div>
@@ -227,7 +228,7 @@ export default function ProductDisplay() {
                 <div className="w-[300px] relative aspect-[4/3] -z-10 flex flex-row items-center justify-center before:absolute before:inset-0 before:bg-[#FFD700] before:opacity-20 before:blur-[2000px]">
                     <div className="w-[300px] relative aspect-[4/3] z-10 flex flex-row items-center justify-center">
                         <div className="absolute top-0 left-0 w-full h-full">
-                            <Image fill className="object-contain" src="/assets/images/integrity-product-shot.png" alt="integrity-cover" priority />
+                            <Image fill className="object-contain" src="/assets/images/covernobg.png" alt="integrity-cover" priority />
                         </div>
                     </div>
                 </div>

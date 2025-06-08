@@ -60,7 +60,7 @@ export default function PurchaseInformation({ firstPurchaseButtonInView }: { fir
     //     ? 'https://buy.stripe.com/14A8wO7fO5Wq5Rg5zcbwk00'
     //     : 'https://buy.stripe.com/test_cNi4gy0YM8mi6GpajYgUM00';
 
-    const paymentLink = 'https://buy.stripe.com/test_cNi4gy0YM8mi6GpajYgUM00';
+    const paymentLink = 'https://buy.stripe.com/14A8wO7fO5Wq5Rg5zcbwk00';
 
     return (
         <>

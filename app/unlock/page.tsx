@@ -243,11 +243,11 @@ export default function Unlock() {
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: animationTokens.duration1, delay: animationTokens.delay1 }}
                                 >
-                                    {currentAudioData.albums[audioIndex]?.audio_description_1}
+                                    {currentAudioData.albums[audioIndex]?.audio_name}
                                 </motion.p>
                                 <motion.p 
                                     style={{
-                                        color: colors.grey,
+                                        color:  colors.grey,
                                         fontFamily: 'boldMain',
                                         fontWeight: 'bold'
                                     }} 
