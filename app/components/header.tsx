@@ -42,10 +42,10 @@ export default function IntegrityHeader({ showHeader }: IntegrityHeaderProps) {
             text: 'How It Works',
             link: '#how-it-works-marker'
         },
-        {
-            text: 'Listen',
-            link: '/unlock'
-        }
+        // {
+        //     text: 'Listen',
+        //     link: '/unlock'
+        // }
     ]
 
     return (
