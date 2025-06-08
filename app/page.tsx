@@ -11,12 +11,68 @@ import HowItWorksCards from "./components/slideThree/howItWorksCards";
 import ProductDisplay from "./components/slideTwo/productDisplay";
 import PurchaseInformation from "./components/slideTwo/purchaseInformation";
 import { colors } from "./tokens/colors";
+import { useAudioContext } from '@/app/providers/AudioContextProvider';
+import { FaVolumeUp, FaVolumeMute, FaPlay } from 'react-icons/fa';
 
 export default function Home() {
   const [opacity, setOpacity] = useState(0);
   const { scrollYProgress } = useScroll();
 
   const [firstPurchaseButtonInView, setFirstPurchaseButtonInView] = useState(false);
+  const { musicFiles, loadPlaylist, playTrack, audioRef, showInteractionOverlay, setShowInteractionOverlay } = useAudioContext();
+  const [isMuted, setIsMuted] = useState(false);
+  const [musicHasStarted, setMusicHasStarted] = useState(false);
+
+  const playFirstMusicTrack = async () => {
+    if (musicFiles && musicFiles.length > 0 && musicFiles[0]?.audio_files.length > 0) {
+      console.log('Playing first music track after interaction...');
+      try {
+        // Get the first track
+        const firstTrack = musicFiles[0].audio_files[0];
+        console.log('First track:', firstTrack);
+        
+        // Set up and play the audio
+        if (audioRef.current) {
+          audioRef.current.src = firstTrack.url;
+          audioRef.current.load();
+          const playPromise = audioRef.current.play();
+          if (playPromise !== undefined) {
+            await playPromise;
+            console.log('Audio playing successfully!');
+            setMusicHasStarted(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error playing music:', error);
+      }
+    }
+  };
+
+  const handleOverlayInteraction = () => {
+    setShowInteractionOverlay(false);
+    playFirstMusicTrack();
+  };
+
+  const handleButtonClick = () => {
+    if (!musicHasStarted) {
+      // Act like play button - start music
+      setShowInteractionOverlay(false)
+      playFirstMusicTrack();
+    } else {
+      // Act like mute button - toggle mute
+      if (audioRef.current) {
+        audioRef.current.muted = !audioRef.current.muted;
+        setIsMuted(!isMuted);
+      }
+    }
+  };
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !audioRef.current.muted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   useLayoutEffect(() => {
     const scrollToTop = () => {
@@ -27,7 +83,8 @@ export default function Home() {
     }
 
     scrollToTop();
-    
+
+
   }, []);
 
   useEffect(() => {
@@ -70,69 +127,104 @@ export default function Home() {
   return (
     // NOTE - SLIDE ONE
     <>
-    {/* NOTE - HEADER */}
-    <IntegrityHeader showHeader={true} />
 
-    {/* NOTE - BACKGROUND IMAGE */}
-    <div className="fixed top-0 left-0 w-full h-full -z-10">
+
+      {/* NOTE - HEADER */}
+      <IntegrityHeader showHeader={true} />
+
+      {/* NOTE - BACKGROUND IMAGE */}
+      <div className="fixed top-0 left-0 w-full h-full -z-10">
 
         <div className="bg-black w-full h-full absolute top-0 left-0 z-[1]" style={{ opacity: opacity }}></div>
         <Image fill className="object-cover w-full h-full" src="/assets/images/integrity-albumn-cover.png" alt="integrity-cover" priority />
-    
-    </div>
 
-    {/* NOTE - HERO TEXT */}
-    <div className="flex relative  h-screen w-full place-content-center">
-      <HeroText firstPurchaseButtonInView={firstPurchaseButtonInView} setFirstPurchaseButtonInView={setFirstPurchaseButtonInView} />
-    </div>
+      </div>
 
-    {/* NOTE - PRODUCT DISPLAY */}
-    <div className=" flex gap-[60px] relative flex-col h-max min-h-screen w-full place-content-center place-items-center">
-      <div id="product-page-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
-      <ProductDisplay />
-      <PurchaseInformation firstPurchaseButtonInView={firstPurchaseButtonInView} />
-    </div>
+      {/* NOTE - HERO TEXT */}
+      <div className="flex relative  h-screen w-full place-content-center">
 
-    {/* NOTE - HOW IT WORKS */}
-    <div className="sm:pt-[15%] lg:pt-[3%] flex relative gap-[15px] flex-col min-h-screen lg:h-screen w-full place-content-center">
-      
-      <div id="how-it-works-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
-      {/* NOTE - DESKTOP HOW IT WORKS */}
+        <HeroText  firstPurchaseButtonInView={firstPurchaseButtonInView} setFirstPurchaseButtonInView={setFirstPurchaseButtonInView} />
+
+        {/* NOTE - INTERACTION OVERLAY */}
+        {showInteractionOverlay && (
+          <div
+            onClick={handleOverlayInteraction}
+            onTouchStart={handleOverlayInteraction}
+            className="fixed inset-0 cursor-pointer"
+            style={{
+              // backgroundColor: 'transparent',
+              backdropFilter: 'blur(0px)'
+            }}
+          />
+        )}
+
+      </div>
+
+      {/* NOTE - PRODUCT DISPLAY */}
+      <div className=" flex gap-[60px] relative flex-col h-max min-h-screen w-full place-content-center place-items-center">
+        <div id="product-page-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
+        <ProductDisplay />
+        <PurchaseInformation firstPurchaseButtonInView={firstPurchaseButtonInView} />
+      </div>
+
+      {/* NOTE - HOW IT WORKS */}
+      <div className="sm:pt-[15%] lg:pt-[3%] flex relative gap-[15px] flex-col min-h-screen lg:h-screen w-full place-content-center">
+
+        <div id="how-it-works-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
+        {/* NOTE - DESKTOP HOW IT WORKS */}
         <div className="flex flex-col hidden lg:flex h-max relative items-center justify-center">
-          <motion.h1 
-          className="lg:text-[5rem] leading-none select-none"
-          initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1 , delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+          <motion.h1
+            className="lg:text-[5rem] leading-none select-none"
+            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
           <motion.h2 className="select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
         </div>
 
         {/* NOTE - TABLET HOW IT WORKS */}
         <div className="hidden sm:flex lg:hidden flex-col relative items-center justify-center">
-            <motion.h1 
+          <motion.h1
             className="
             text-[3rem] leading-none select-none"
-            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1 , delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
-            <motion.h2 className="text-[1.25rem] select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
+            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+          <motion.h2 className="text-[1.25rem] select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
         </div>
 
         {/* NOTE - MOBILE HOW IT WORKS */}
         <div className="sm:hidden w-full flex flex-col relative top-0 place-self-center py-4 h-[30vh]  z-[1]  items-center justify-center">
-          <motion.h1 
-          className="
+          <motion.h1
+            className="
           text-[2.3rem] 
           leading-none select-none"
-          initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1 , delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
           <motion.h2 className="select-none text-[1.75rem]" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
         </div>
-      
-        <div className="sm:hidden h-[10px] sm:h-[140px]"/>
-        
-        <HowItWorksCards/>
+
+        <div className="sm:hidden h-[10px] sm:h-[140px]" />
+
+        <HowItWorksCards />
 
 
-    </div>
+      </div>
 
-    {/* NOTE - FOOTER */}
-    <IntegrityFooter />
+      {/* NOTE - FOOTER */}
+      <IntegrityFooter />
+
+      {/* NOTE - MUTE BUTTON */}
+      <button
+        onClick={handleButtonClick}
+        className="fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
+        style={{
+          backgroundColor: colors.primary,
+          border: `2px solid ${colors.primary}`,
+        }}
+      >
+        {!musicHasStarted ? (
+          <FaPlay className="w-5 h-5 text-white" />
+        ) : isMuted ? (
+          <FaVolumeMute className="w-5 h-5 text-white" />
+        ) : (
+          <FaVolumeUp className="w-5 h-5 text-white" />
+        )}
+      </button>
 
     </>
   );

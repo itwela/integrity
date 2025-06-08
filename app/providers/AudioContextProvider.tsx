@@ -46,6 +46,8 @@ interface AudioContextProviderProps {
     loadPlaylist: (playlist: AudioFile[]) => void;
     audioCategories: string[];
     checkEmailAccess: (email: string) => Promise<boolean>;
+    showInteractionOverlay: boolean;
+    setShowInteractionOverlay: (value: boolean) => void;
 }
 
 const AudioContext = createContext<AudioContextProviderProps | null>(null);
@@ -57,6 +59,7 @@ export default function AudioContextProvider({ children }: { children: React.Rea
     const [currentTime, setCurrentTime] = useState(0);
     const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
     const [currentPlaylist, setCurrentPlaylist] = useState<AudioFile[]>([]);
+    const [showInteractionOverlay, setShowInteractionOverlay] = useState(true);
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const audioCategories = [
         'Music',
@@ -136,7 +139,9 @@ export default function AudioContextProvider({ children }: { children: React.Rea
                 playTrack,
                 loadPlaylist,
                 audioCategories,
-                checkEmailAccess
+                checkEmailAccess,
+                showInteractionOverlay,
+                setShowInteractionOverlay
             }}>
                 {children}
             </AudioContext.Provider>

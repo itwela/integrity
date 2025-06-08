@@ -12,6 +12,7 @@ import IntegrityButton from "../IntegrityButton";
 export default function HeroText({ setFirstPurchaseButtonInView }: { 
     firstPurchaseButtonInView: boolean,
     setFirstPurchaseButtonInView: (value: boolean) => void 
+
 }) {
     const buttonRef = React.useRef(null);
     const isInView = useInView(buttonRef, {
@@ -55,7 +56,7 @@ export default function HeroText({ setFirstPurchaseButtonInView }: {
  
     return (
         <>
-            <div id="product-display-image" className="leading-none absolute bottom-[15%] flex flex-col items-center justify-center gap-[10px]">
+            <div id="product-display-image" className="leading-none absolute bottom-[15%] z-1 flex flex-col items-center justify-center gap-[10px]">
                 <motion.div className="w-max h-max" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: animationTokens.duration1, delay: animationTokens.delay1 }}>
                     <Image 
                         width={50} 
