@@ -1,9 +1,11 @@
 'use client'
 
+import { useAudioContext } from '@/app/providers/AudioContextProvider';
 import { animationTokens } from "@/app/tokens/animationTokens";
 import { motion, useScroll } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useState } from "react";
+import { FaPlay, FaVolumeMute, FaVolumeUp } from 'react-icons/fa';
 import IntegrityFooter from "./components/footer";
 import IntegrityHeader from "./components/header";
 import HeroText from "./components/slideOne/heroText";
@@ -11,15 +13,13 @@ import HowItWorksCards from "./components/slideThree/howItWorksCards";
 import ProductDisplay from "./components/slideTwo/productDisplay";
 import PurchaseInformation from "./components/slideTwo/purchaseInformation";
 import { colors } from "./tokens/colors";
-import { useAudioContext } from '@/app/providers/AudioContextProvider';
-import { FaVolumeUp, FaVolumeMute, FaPlay } from 'react-icons/fa';
 
 export default function Home() {
   const [opacity, setOpacity] = useState(0);
   const { scrollYProgress } = useScroll();
 
   const [firstPurchaseButtonInView, setFirstPurchaseButtonInView] = useState(false);
-  const { musicFiles, loadPlaylist, playTrack, audioRef, showInteractionOverlay, setShowInteractionOverlay } = useAudioContext();
+  const { musicFiles, audioRef, showInteractionOverlay, setShowInteractionOverlay } = useAudioContext();
   const [isMuted, setIsMuted] = useState(false);
   const [musicHasStarted, setMusicHasStarted] = useState(false);
 
@@ -67,12 +67,6 @@ export default function Home() {
     }
   };
 
-  const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !audioRef.current.muted;
-      setIsMuted(!isMuted);
-    }
-  };
 
   useLayoutEffect(() => {
     const scrollToTop = () => {
@@ -211,7 +205,7 @@ export default function Home() {
       {/* NOTE - MUTE BUTTON */}
       <button
         onClick={handleButtonClick}
-        className="fixed bottom-8 right-8 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
+        className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 z-50"
         style={{
           backgroundColor: colors.primary,
           border: `2px solid ${colors.primary}`,
