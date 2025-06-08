@@ -91,7 +91,7 @@ export default function IntegrityHeader({ showHeader }: IntegrityHeaderProps) {
                 <motion.div className="sm:hidden" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}>
                     <FaBars style={{ color: colors.primary, fontSize: '1.5rem' }} className="cursor-pointer" onClick={() => setMenuOpen(!menuOpen)} />
                     {menuOpen && (
-                        <motion.div style={{ backgroundColor: colors.primary }} className="absolute top-full w-full h-[150px] justify-between flex flex-col right-0 mt-2 shadow-lg rounded-md w-[200px]" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}>
+                        <motion.div style={{ backgroundColor: colors.primary }} className="absolute top-full w-max h-max justify-start flex flex-col right-0 mt-2 shadow-lg rounded-md w-[200px]" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}>
                             {headerItems.map((item, index) => (
                                 <motion.a
                                     initial={{ opacity: 0, y: -10 }}
