@@ -143,15 +143,18 @@ export default function AdminUpdates() {
             import('jspdf-autotable').then(({ default: autoTable }) => {
                 const currentDate = new Date().toLocaleDateString();
                 const doc = new jsPDF();
-                
-                // Add title with date
+
+                // Add title with date and order count
                 doc.setFontSize(16);
                 doc.text(`Integrity Orders to Ship - ${currentDate}`, 14, 15);
-                
+                doc.setFontSize(14);
+                doc.text(`Total Orders: ${recordsNotShipped.length}`, 14, 22);
+
                 // Prepare table data
                 const tableData = recordsNotShipped.map(record => {
                     const address = record.address;
                     const fullAddress = address ? [
+                        address.name,
                         address.line_1,
                         address.line_2,
                         `${address.city}, ${address.state} ${address.zip}`
@@ -255,27 +258,38 @@ export default function AdminUpdates() {
                             <button className="hover:cursor-pointer bg-[#977B49] text-white px-4 py-2 rounded-md" onClick={() => sendShippingConfirmationEmail(testEmail, testName, testTrackingNumber)}>Send Shipping Confirmation Email</button> */}
                                 </div>
                             </div>
-                            <div className="flex rounded-lg border border-gray-200 flex-col justify-between px-4 mb-8 gap-2 h-max place-self-end">
-                                <button
-                                    className="hover:cursor-pointer"
-                                    onMouseEnter={() => {
-                                        const container = document.querySelector('.overflow-y-auto');
-                                        if (container) container.scrollTop = 0;
-                                    }}
-                                >
-                                    Top
-                                </button>
-                                <span></span>
-                                <button
-                                    className="hover:cursor-pointer"
-                                    onMouseEnter={() => {
-                                        const container = document.querySelector('.overflow-y-auto');
-                                        if (container) container.scrollTop = container.scrollHeight;
-                                    }}
-                                >
-                                    Bottom
-                                </button>
+
+                            {/* NOTE - THESE BUTTONS ARE FOR SCROLLING THE TABLE */}
+                            <div className="flex flex-col w-max place-self-end place-content-end h-full gap-2">
+                                {/* need to put the ocunt of orders that have not been shipped yet here */}
+                                <div className="flex flex-col text-right w-full h-max gap-2">
+                                    <p className="text-2xl font-bold text-[#977B49]">Total: {recordsNotShipped.length}</p>
+                                </div>
+
+                                {/* NOTE - THESE BUTTONS ARE FOR SCROLLING THE TABLE */}
+                                <div className="flex rounded-lg border border-gray-200 flex-col justify-between px-4 mb-8 gap-2 h-max place-self-end">
+                                    <button
+                                        className="hover:cursor-pointer"
+                                        onMouseEnter={() => {
+                                            const container = document.querySelector('.overflow-y-auto');
+                                            if (container) container.scrollTop = 0;
+                                        }}
+                                    >
+                                        Top
+                                    </button>
+                                    <span></span>
+                                    <button
+                                        className="hover:cursor-pointer"
+                                        onMouseEnter={() => {
+                                            const container = document.querySelector('.overflow-y-auto');
+                                            if (container) container.scrollTop = container.scrollHeight;
+                                        }}
+                                    >
+                                        Bottom
+                                    </button> 
+                                </div>
                             </div>
+
                         </div>
 
                         <div className="w-full h-full flex flex-col items-center justify-start p-4 max-w-[500px] max-h-[500px]">
@@ -376,7 +390,7 @@ export default function AdminUpdates() {
                                                     </div>
 
                                                     {/* TODO */}
-                                                
+
 
                                                 </div>
                                             </>
@@ -392,92 +406,92 @@ export default function AdminUpdates() {
                 )}
 
                 {!hasAccess && (
-                      <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4 }}
-                      className="flex h-[100dvh] items-center justify-center px-4 overflow-hidden w-full max-w-[800px]"
-                  >
-                      <motion.div
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, delay: 0.2 }}
-                          className="w-[90%] sm:w-[50%] max-h-[70dvh] bg-[#1a1a1a] rounded-2xl py-12 px-6 flex flex-col items-center gap-8"
-                      >
-                          <motion.div
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ duration: 0.4, delay: 0.4 }}
-                              className="relative p-[30px] flex items-center justify-center rounded-full"
-                          >
-                              {[...Array(8)].map((_, i) => (
-                                  <motion.span
-                                      key={i}
-                                      initial={{ opacity: 0 }}
-                                      animate={{ opacity: 1 }}
-                                      transition={{
-                                          duration: 0.3,
-                                          delay: 0.6 + (i * 0.1),
-                                      }}
-                                      className="absolute w-2 h-2 bg-gray-600 translate-x-[-50%] translate-y-[-50%] rounded-full"
-                                      style={{
-                                          top: `${50 - 45 * Math.sin(i * Math.PI / 4)}%`,
-                                          left: `${50 - 45 * Math.cos(i * Math.PI / 4)}%`,
-                                      }}
-                                  />
-                              ))}
-                              <FaLock className="text-4xl text-[#C4A962]" />
-                          </motion.div>
-  
-                          <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.4, delay: 0.6 }}
-                              className="w-full max-w-md space-y-6"
-                          >
-                              <div className="space-y-2">
-                                  <motion.label
-                                      initial={{ opacity: 0, x: -20 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ duration: 0.4, delay: 0.7 }}
-                                      style={{
-                                          fontFamily: 'boldMain',
-                                      }}
-                                      className="block text-gray-400 text-sm font-bold"
-                                  >
-                                      Email:
-                                  </motion.label>
-                                  <motion.input
-                                      initial={{ opacity: 0, x: -20 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ duration: 0.4, delay: 0.8 }}
-                                      type="email"
-                                      value={email}
-                                      onChange={handleEmailChange}
-                                      placeholder="Enter your email"
-                                      style={{
-                                          backgroundColor: colors.grey,
-                                          fontFamily: 'main',
-                                      }}
-                                      className="w-full p-3 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#C4A962]"
-                                  />
-                              </div>
-  
-                              <motion.div
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ duration: 0.4, delay: 1 }}
-                                  className="w-full h-px bg-gray-700 my-6"
-                              />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.4 }}
+                        className="flex h-[100dvh] items-center justify-center px-4 overflow-hidden w-full max-w-[800px]"
+                    >
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                            className="w-[90%] sm:w-[50%] max-h-[70dvh] bg-[#1a1a1a] rounded-2xl py-12 px-6 flex flex-col items-center gap-8"
+                        >
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.4, delay: 0.4 }}
+                                className="relative p-[30px] flex items-center justify-center rounded-full"
+                            >
+                                {[...Array(8)].map((_, i) => (
+                                    <motion.span
+                                        key={i}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{
+                                            duration: 0.3,
+                                            delay: 0.6 + (i * 0.1),
+                                        }}
+                                        className="absolute w-2 h-2 bg-gray-600 translate-x-[-50%] translate-y-[-50%] rounded-full"
+                                        style={{
+                                            top: `${50 - 45 * Math.sin(i * Math.PI / 4)}%`,
+                                            left: `${50 - 45 * Math.cos(i * Math.PI / 4)}%`,
+                                        }}
+                                    />
+                                ))}
+                                <FaLock className="text-4xl text-[#C4A962]" />
+                            </motion.div>
 
-                          </motion.div>
-                      </motion.div>
-                  </motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.4, delay: 0.6 }}
+                                className="w-full max-w-md space-y-6"
+                            >
+                                <div className="space-y-2">
+                                    <motion.label
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.4, delay: 0.7 }}
+                                        style={{
+                                            fontFamily: 'boldMain',
+                                        }}
+                                        className="block text-gray-400 text-sm font-bold"
+                                    >
+                                        Email:
+                                    </motion.label>
+                                    <motion.input
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.4, delay: 0.8 }}
+                                        type="email"
+                                        value={email}
+                                        onChange={handleEmailChange}
+                                        placeholder="Enter your email"
+                                        style={{
+                                            backgroundColor: colors.grey,
+                                            fontFamily: 'main',
+                                        }}
+                                        className="w-full p-3 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#C4A962]"
+                                    />
+                                </div>
+
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4, delay: 1 }}
+                                    className="w-full h-px bg-gray-700 my-6"
+                                />
+
+                            </motion.div>
+                        </motion.div>
+                    </motion.div>
                 )}
 
             </div>
 
-            <Toast 
+            <Toast
                 message={toastMessage}
                 isVisible={showToast}
                 onClose={() => setShowToast(false)}
