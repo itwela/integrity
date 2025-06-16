@@ -141,16 +141,13 @@ export default function AdminUpdates() {
         // Dynamically import jsPDF and jspdf-autotable
         import('jspdf').then(({ default: jsPDF }) => {
             import('jspdf-autotable').then(({ default: autoTable }) => {
+                const currentDate = new Date().toLocaleDateString();
                 const doc = new jsPDF();
                 
-                // Add title
+                // Add title with date
                 doc.setFontSize(16);
-                doc.text('Orders to Ship', 14, 15);
+                doc.text(`Integrity Orders to Ship - ${currentDate}`, 14, 15);
                 
-                // Add date
-                doc.setFontSize(10);
-                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
-
                 // Prepare table data
                 const tableData = recordsNotShipped.map(record => {
                     const address = record.address;
@@ -191,8 +188,12 @@ export default function AdminUpdates() {
                     },
                 });
 
-                // Save the PDF
-                doc.save('orders-to-ship.pdf');
+                // Add footer
+                doc.setFontSize(8);
+                doc.text('Powered by Caveman Creative © 2025', 14, doc.internal.pageSize.height - 10);
+
+                // Save the PDF with date in the filename
+                doc.save(`integrity-orders-to-ship-${currentDate}.pdf`);
             });
         });
     };
@@ -283,7 +284,6 @@ export default function AdminUpdates() {
 
                                 <div className="flex flex-row w-full h-full gap-4 place-items-center justify-center p-2 border border-gray-200 rounded-lg p-4 gap-8">
                                     <button className={`hover:cursor-pointer px-4 py-2 rounded-full ${toolMode === "trackingConfirmation" ? "bg-[#977B49] text-white" : ""}`} onMouseEnter={() => setToolMode("trackingConfirmation")}>Confirm Shipment</button>
-                                    <button className={`hover:cursor-pointer px-4 py-2 rounded-full ${toolMode === "informationUpdate" ? "bg-[#977B49] text-white" : ""}`} onMouseEnter={() => setToolMode("informationUpdate")}>Update Information</button>
                                 </div>
 
                                 {/* the selected order will be shown here */}
@@ -376,11 +376,7 @@ export default function AdminUpdates() {
                                                     </div>
 
                                                     {/* TODO */}
-                                                    <div className="flex flex-col w-full h-full gap-4 place-items-center">
-                                                        <IntegrityButton backgroundColor="#977B49" onClick={() => {
-                                                            console.log(selectedOrder, trackingNumber, address, quantityToShip);
-                                                        }}>Update Information</IntegrityButton>
-                                                    </div>
+                                                
 
                                                 </div>
                                             </>
