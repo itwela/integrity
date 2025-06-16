@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       state: checkoutSession.customer_details?.address?.state || 'no-state-provided',
       zip: checkoutSession.customer_details?.address?.postal_code || 'no-zip-provided',
     };
-    const quantity_to_ship = checkoutSession.metadata?.quantity_to_ship || 0;
+    const quantity_to_ship = checkoutSession.metadata?.quantity_to_ship || 1;
 
     if (!email || !name) {
       throw new Error('Missing required customer details');
