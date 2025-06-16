@@ -1,12 +1,10 @@
-import { NextResponse } from 'next/server';
 import { api } from '@/convex/_generated/api';
 import { ConvexHttpClient } from 'convex/browser';
+import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-import dotenv from 'dotenv';
-import ShippingConfirmation from '@/emails/shippingConfirmation';
-import NextSteps, { NextStepsEmail } from '@/emails/nextSteps';
 import { sendNextStepsEmail } from '@/emails/actions';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -14,12 +12,14 @@ const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL!;
 
 const convex = new ConvexHttpClient(CONVEX_URL);
 
-const resendApiKey = process.env.NODE_ENV === 'production' ? process.env.RESEND_API_KEY : process.env.NEXT_PUBLIC_RESEND_API_KEY;
-const resend = new Resend(resendApiKey);
 
 export async function POST(request: Request) {
-
+  
+  const resendApiKey = process.env.NODE_ENV === 'production' ? process.env.RESEND_API_KEY : process.env.NEXT_PUBLIC_RESEND_API_KEY;
+  const resend = new Resend(resendApiKey);
   console.log('Stripe Webhook Received');
+  // just need to use the value of resend
+  console.log('resend', resend.domains.list());
   
   try {
     const body = await request.json();

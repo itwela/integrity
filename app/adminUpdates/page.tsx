@@ -1,27 +1,23 @@
 'use client';
 
-import Image from "next/image";
-import IntegrityHeader from "../components/header";
-import React from "react";
-import { motion } from "framer-motion";
-import { animationTokens } from "../tokens/animationTokens";
-import { colors } from "../tokens/colors";
-import { FaLock, FaPause, FaPlay } from "react-icons/fa";
-import AudioPlayer from "../components/audio-player/AudioPlayer";
 import { useAudioContext } from '@/app/providers/AudioContextProvider';
+import { motion } from "framer-motion";
+import React from "react";
+import { FaLock } from "react-icons/fa";
 import IntegrityButton from "../components/IntegrityButton";
 import IntegrityFooter from "../components/footer";
+import IntegrityHeader from "../components/header";
 import { useShippingToolContext } from "../providers/ShippingToolProvider";
-import { Id } from "@/convex/_generated/dataModel";
-import { sendNextStepsEmail, sendShippingConfirmationEmail } from "@/emails/actions";
+import { colors } from "../tokens/colors";
 export default function AdminUpdates() {
 
     const [hasAccess, setHasAccess] = React.useState(false);
     const [email, setEmail] = React.useState("");
     const [isEmailValid, setIsEmailValid] = React.useState(false);
-    const { musicFiles, audioRef, showInteractionOverlay, setShowInteractionOverlay } = useAudioContext();
+    const { audioRef } = useAudioContext();
 
-    const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
+    // const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
+    const { recordsNotShipped } = useShippingToolContext();
 
     const [selectedOrder, setSelectedOrder] = React.useState<string | null>(null);
     const [trackingNumber, setTrackingNumber] = React.useState<string | null>(null);
@@ -34,22 +30,23 @@ export default function AdminUpdates() {
     }, []);
 
     // NEXT_PUBLIC_ADMIN_EMAIL
-    const handleAccess = async () => {
-        const isAdminEmail = email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-        const checkLocalStorage = localStorage.getItem('integrity-admin-email');
+    // const handleAccess = async () => {
+    //     const isAdminEmail = email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    //     const checkLocalStorage = localStorage.getItem('integrity-admin-email');
 
-        if (isAdminEmail && !checkLocalStorage) {
-            localStorage.setItem('integrity-admin-email', email);
-            setHasAccess(true);
-        } else if (isAdminEmail && checkLocalStorage) {
-            setHasAccess(true);
-        } else {
-            alert('You are not that guy pal, trust me, you are not that guy.');
-        }
-    }
+    //     if (isAdminEmail && !checkLocalStorage) {
+    //         localStorage.setItem('integrity-admin-email', email);
+    //         setHasAccess(true);
+    //     } else if (isAdminEmail && checkLocalStorage) {
+    //         setHasAccess(true);
+    //     } else {
+    //         alert('You are not that guy pal, trust me, you are not that guy.');
+    //     }
+    // }
 
     const checkIsAdminOnLoad = () => {
         stopMusicTrack();
+        console.log('checkIsAdminOnLoad', isEmailValid);
         const checkLocalStorage = localStorage.getItem('integrity-admin-email');
         if (checkLocalStorage) {
             setHasAccess(true);
@@ -100,18 +97,18 @@ export default function AdminUpdates() {
         selectedRow: "bg-[#977B49]"
     };
 
-    const testName = "John Doe";
-    const testEmail = "deanandnostrand@gmail.com";
-    const testAddress = {
-        name: "John Doe",
-        line_1: "123 Main St",
-        line_2: "Apt 4B",
-        city: "Anytown",
-        state: "CA",
-        zip: "12345"
-    };
-    const testQuantityToShip = 1;
-    const testTrackingNumber = "1234567890";
+    // const testName = "John Doe";
+    // const testEmail = "deanandnostrand@gmail.com";
+    // const testAddress = {
+    //     name: "John Doe",
+    //     line_1: "123 Main St",
+    //     line_2: "Apt 4B",
+    //     city: "Anytown",
+    //     state: "CA",
+    //     zip: "12345"
+    // };
+    // const testQuantityToShip = 1;
+    // const testTrackingNumber = "1234567890";
 
     return (
         <>

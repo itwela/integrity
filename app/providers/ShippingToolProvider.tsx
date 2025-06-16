@@ -4,7 +4,7 @@ import React, { createContext } from "react";
 import { api } from "../../convex/_generated/api";
 import { useQuery, useMutation } from "convex/react";
 import { Id } from "../../convex/_generated/dataModel";
-import { sendNextStepsEmail, sendShippingConfirmationEmail } from "@/emails/actions";
+import { sendShippingConfirmationEmail } from "@/emails/actions";
 
 interface ShippingUser {
     id: Id<"stripeLogs">;
