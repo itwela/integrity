@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     const address = {
       name: checkoutSession.customer_details?.name || 'no-name-provided',
       line_1: checkoutSession.customer_details?.address?.line1 || 'no-address-provided',
-      line_2: checkoutSession.customer_details?.address?.line2 || null,
+      line_2: checkoutSession.customer_details?.address?.line2 || '',
       city: checkoutSession.customer_details?.address?.city || 'no-city-provided',
       state: checkoutSession.customer_details?.address?.state || 'no-state-provided',
       zip: checkoutSession.customer_details?.address?.postal_code || 'no-zip-provided',
