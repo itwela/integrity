@@ -23,18 +23,25 @@ export async function POST(request: Request) {
   
   try {
     const body = await request.json();
+    console.log('Received webhook body:', JSON.stringify(body, null, 2));
+    
+    // Verify this is a checkout.session.completed event
+    if (body.type !== 'checkout.session.completed') {
+      console.log('Not a checkout.session.completed event, skipping');
+      return NextResponse.json({ status: 'ignored' });
+    }
     
     // Extract data from Stripe checkout session completed event
     const checkoutSession = body.data.object;
     
     // Extract required fields from checkout session
-    const email = checkoutSession.customer_details?.email || 'no-email-provided';
-    const name = checkoutSession.customer_details?.name || 'no-name-provided';
-    const payment_amount = checkoutSession.amount_total; // in cents
+    const email = checkoutSession.customer_details?.email;
+    const name = checkoutSession.customer_details?.name;
+    const payment_amount = checkoutSession.amount_total;
     const payment_status = checkoutSession.payment_status;
     const session_id = checkoutSession.id;
-    const tracking_number = checkoutSession.metadata.tracking_number || '';
-    const has_shipped = checkoutSession.metadata.has_shipped || false;
+    const tracking_number = checkoutSession.metadata?.tracking_number || '';
+    const has_shipped = checkoutSession.metadata?.has_shipped || false;
     const address = {
       name: checkoutSession.customer_details?.name || 'no-name-provided',
       line_1: checkoutSession.customer_details?.address?.line1 || 'no-address-provided',
@@ -43,22 +50,30 @@ export async function POST(request: Request) {
       state: checkoutSession.customer_details?.address?.state || 'no-state-provided',
       zip: checkoutSession.customer_details?.address?.postal_code || 'no-zip-provided',
     };
-    const quantity_to_ship = checkoutSession.metadata.quantity_to_ship || 0;
+    const quantity_to_ship = checkoutSession.metadata?.quantity_to_ship || 0;
 
-    console.log('Stripe checkout session', session_id);
-    console.log('Customer name:', name);
-    console.log('Customer email:', email);
+    if (!email || !name) {
+      throw new Error('Missing required customer details');
+    }
+
+    console.log('Processing checkout session:', {
+      session_id,
+      customer_name: name,
+      customer_email: email,
+      payment_amount,
+      payment_status
+    });
 
     await convex.mutation(api.stripeLogs.insertStripeData, {
-      email: email,
-      payment_amount: payment_amount,
-      payment_status: payment_status,
+      email,
+      payment_amount,
+      payment_status,
       product_id: session_id,
-      name: name,
-      tracking_number: tracking_number,
-      has_shipped: has_shipped,
-      address: address,
-      quantity_to_ship: quantity_to_ship,
+      name,
+      tracking_number,
+      has_shipped,
+      address,
+      quantity_to_ship,
       createdAt: Date.now(),
     });
 
@@ -69,7 +84,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: 'ok' });
   } catch (err) {
     console.error('Stripe Webhook Error:', err);
-    return NextResponse.json({ error: 'Failed to process data' }, { status: 500 });
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+    return NextResponse.json({ error: `Failed to process data: ${errorMessage}` }, { status: 500 });
   }
 }
 
