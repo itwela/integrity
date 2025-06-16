@@ -5,6 +5,8 @@ import { colors } from "@/app/tokens/colors"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import IntegrityButton from "../IntegrityButton"
+import IntegrityDivider from "../IntegrityDivider"
+import { textTokens } from "@/app/tokens/textTokens"
 
 export default function PurchaseInformation({ firstPurchaseButtonInView }: { firstPurchaseButtonInView: boolean }) {
 
@@ -65,38 +67,50 @@ export default function PurchaseInformation({ firstPurchaseButtonInView }: { fir
     return (
         <>
             {/* NOTE - DESKTOP PURCHASE INFORMATION */}
-            <div className="lg:flex hidden h-[10%]  max-w-[1200px]" style={styles.container}>
+            <div className="lg:flex hidden h-[10%] h-[125px]  max-w-[1400px] place-items-center justify-between" style={styles.container}>
 
-                <div className="w-[60%]  h-max flex flex-row gap-4 items-center">
+                {/* REVIEW */}
+                <div className="w-[50%] h-full relative flex flex-row gap-8 items-start">
                     {/* NOTE - PRICE TEXT $60 */}
-                    <motion.h1 className=" lg:text-[4rem] text-[3rem] select-none"
-                        initial={{ opacity: 0, y: -10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: false }}
-                        transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}
-                        style={styles.priceText}>$60</motion.h1>
-                    {/* NOTE - PRICE SUB TEXT */}
-                    <div className="flex flex-col">
+                    <div className="flex flex-col leading-[70px]">
+                        <motion.h1 className="select-none"
+                            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} 
+                            style={{ ...styles.priceText, fontSize: textTokens.large }}>
+                                $60
+                        </motion.h1>
+                        <div className="w-full flex place-content-end">
+                            <motion.p className="text-[12px] select-none"
+                                initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} 
+                                style={{ ...styles.priceNotes, fontSize: textTokens.superTiny }}>
+                                + shipping and handling
+                            </motion.p>
+                        </div>
+                    </div>
+                        
+                        <IntegrityDivider orientation='vertical' />
+
+                    {/* NOTE - PRICE SUB TEXT - not sold separately */}
+                    <div className="flex flex-col h-full place-content-center">
                         {priceText.map((text, index) => (
-                            <motion.h1 className="lg:text-[0.70rem] text-[0.60rem] select-none"
+                            <motion.h1 className="select-none"
                                 key={index}
                                 initial={{ opacity: 0, y: -10 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: false }}
                                 transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 + index * 0.1 }}
-                                style={styles.priceNotes}>{text}</motion.h1>
+                                style={{ ...styles.priceNotes, fontSize: textTokens.superTiny }}>{text}</motion.h1>
                         ))}
                     </div>
                 </div>
 
 
-                <div className=" w-[40%] flex flex-col h-max gap-[10px] items-center">
+                <div className=" w-[45%] flex flex-col h-max gap-[10px] items-center">
                     <motion.h1
                         className="
-                            text-[0.5rem]
                             text-center
                             select-none"
-                        initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.priceSubText}>{`
+                        initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}
+                        style={{ ...styles.priceSubText, fontSize: textTokens.tiny }}>{`
                             INTEGRITY — The album, fragrance, and companion book of principles, stories, and insights that shaped the creative process.
                         `}</motion.h1>
                     <motion.div
@@ -137,9 +151,10 @@ export default function PurchaseInformation({ firstPurchaseButtonInView }: { fir
                             viewport={{ once: false }}
                             transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}
                             className="
-                            text-[0.75rem]
+                            
                             text-center
-                            select-none" style={styles.priceSubText}>{`
+                            select-none" 
+                            style={{ ...styles.priceSubText, fontSize: textTokens.tiny }}>{`
                                 INTEGRITY — The album, fragrance, and companion book
                             `}</motion.h1>
 

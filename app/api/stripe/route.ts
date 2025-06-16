@@ -1,14 +1,21 @@
 import { NextResponse } from 'next/server';
 import { api } from '@/convex/_generated/api';
 import { ConvexHttpClient } from 'convex/browser';
+import { Resend } from 'resend';
 
 import dotenv from 'dotenv';
+import ShippingConfirmation from '@/emails/shippingConfirmation';
+import NextSteps, { NextStepsEmail } from '@/emails/nextSteps';
+import { sendNextStepsEmail } from '@/emails/actions';
 
 dotenv.config();
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL!;
 
 const convex = new ConvexHttpClient(CONVEX_URL);
+
+const resendApiKey = process.env.NODE_ENV === 'production' ? process.env.RESEND_API_KEY : process.env.NEXT_PUBLIC_RESEND_API_KEY;
+const resend = new Resend(resendApiKey);
 
 export async function POST(request: Request) {
 
@@ -26,6 +33,17 @@ export async function POST(request: Request) {
     const payment_amount = checkoutSession.amount_total; // in cents
     const payment_status = checkoutSession.payment_status;
     const session_id = checkoutSession.id;
+    const tracking_number = checkoutSession.metadata.tracking_number || '';
+    const has_shipped = checkoutSession.metadata.has_shipped || false;
+    const address = {
+      name: checkoutSession.customer_details?.name || 'no-name-provided',
+      line_1: checkoutSession.customer_details?.address?.line1 || 'no-address-provided',
+      line_2: checkoutSession.customer_details?.address?.line2 || null,
+      city: checkoutSession.customer_details?.address?.city || 'no-city-provided',
+      state: checkoutSession.customer_details?.address?.state || 'no-state-provided',
+      zip: checkoutSession.customer_details?.address?.postal_code || 'no-zip-provided',
+    };
+    const quantity_to_ship = checkoutSession.metadata.quantity_to_ship || 0;
 
     console.log('Stripe checkout session', session_id);
     console.log('Customer name:', name);
@@ -37,10 +55,16 @@ export async function POST(request: Request) {
       payment_status: payment_status,
       product_id: session_id,
       name: name,
+      tracking_number: tracking_number,
+      has_shipped: has_shipped,
+      address: address,
+      quantity_to_ship: quantity_to_ship,
       createdAt: Date.now(),
     });
 
     console.log('Successfully processed Stripe checkout session');
+
+    await sendNextStepsEmail(email, name, address, quantity_to_ship);
 
     return NextResponse.json({ status: 'ok' });
   } catch (err) {

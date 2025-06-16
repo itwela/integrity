@@ -6,8 +6,9 @@ import { animationTokens } from "@/app/tokens/animationTokens";
 import { colors } from "@/app/tokens/colors"
 import React from "react";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { textTokens } from "@/app/tokens/textTokens"
 
-export default function ProductDisplay() {
+export default function  ProductDisplay() {
 
     const styles = {
         productDisplayText: {
@@ -115,7 +116,7 @@ export default function ProductDisplay() {
         <>
 
             {/* NOTE - DESKTOP PRODUCT DISPLAY */}
-            <div className="lg:flex hidden flex-col h-[70%] gap-[10px] items-center justify-center  max-w-[1200px]">
+            <div className="lg:flex hidden flex-col h-[70%] gap-[25px] items-center justify-center  max-w-[1200px]">
 
                 {/* NOTE - PRODUCT DISPLAY IMAGE */}
                 <div className="
@@ -134,11 +135,9 @@ export default function ProductDisplay() {
                     {productDisplayText.map((text, index) => (
                         <motion.h2
                             className="
-                            lg:text-[0.8rem]
-                            text-[0.60rem]
                             "
                             key={index}
-                            style={styles.productDisplayText}
+                            style={{ ...styles.productDisplayText, fontSize: textTokens.kindaTiny }}
                             initial={{ opacity: 0, y: -10 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: false }}

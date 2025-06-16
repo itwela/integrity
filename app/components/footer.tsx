@@ -8,6 +8,7 @@ const IntegrityFooter = () => {
         { name: 'Landing', href: '/' },
         { name: 'Product', href: '#product-page-marker' },
         { name: 'How It Works', href: '#how-it-works-marker' },
+        { name: 'Admin', href: '/adminUpdates' },
         // { name: 'Listen', href: '/unlock' },
     ];
 

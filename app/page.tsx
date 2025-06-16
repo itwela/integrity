@@ -154,6 +154,44 @@ export default function Home() {
 
       </div>
 
+            {/* NOTE - HOW IT WORKS */}
+            <div className="sm:pt-[15%] lg:pt-[3%] flex relative gap-[15px] flex-col min-h-screen lg:h-screen w-full place-content-center">
+
+<div id="how-it-works-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
+{/* NOTE - DESKTOP HOW IT WORKS */}
+<div className="flex flex-col hidden lg:flex h-max relative items-center justify-center">
+  <motion.h1
+    className="lg:text-[5rem] leading-none select-none"
+    initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+  <motion.h2 className="select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
+</div>
+
+{/* NOTE - TABLET HOW IT WORKS */}
+<div className="hidden sm:flex lg:hidden flex-col relative items-center justify-center">
+  <motion.h1
+    className="
+    text-[3rem] leading-none select-none"
+    initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+  <motion.h2 className="text-[1.25rem] select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
+</div>
+
+{/* NOTE - MOBILE HOW IT WORKS */}
+<div className="sm:hidden w-full flex flex-col relative top-0 place-self-center py-4 h-[30vh]  z-[1]  items-center justify-center">
+  <motion.h1
+    className="
+  text-[2.3rem] 
+  leading-none select-none"
+    initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
+  <motion.h2 className="select-none text-[1.75rem]" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
+</div>
+
+<div className="sm:hidden h-[10px] sm:h-[140px]" />
+
+<HowItWorksCards />
+
+
+</div>
+
       {/* NOTE - PRODUCT DISPLAY */}
       <div className=" flex gap-[60px] relative flex-col h-max min-h-screen w-full place-content-center place-items-center">
         <div id="product-page-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
@@ -161,43 +199,7 @@ export default function Home() {
         <PurchaseInformation firstPurchaseButtonInView={firstPurchaseButtonInView} />
       </div>
 
-      {/* NOTE - HOW IT WORKS */}
-      <div className="sm:pt-[15%] lg:pt-[3%] flex relative gap-[15px] flex-col min-h-screen lg:h-screen w-full place-content-center">
 
-        <div id="how-it-works-marker" className="absolute top-0 left-0 z-[-1] w-[100px] h-[100px]"></div>
-        {/* NOTE - DESKTOP HOW IT WORKS */}
-        <div className="flex flex-col hidden lg:flex h-max relative items-center justify-center">
-          <motion.h1
-            className="lg:text-[5rem] leading-none select-none"
-            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
-          <motion.h2 className="select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
-        </div>
-
-        {/* NOTE - TABLET HOW IT WORKS */}
-        <div className="hidden sm:flex lg:hidden flex-col relative items-center justify-center">
-          <motion.h1
-            className="
-            text-[3rem] leading-none select-none"
-            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
-          <motion.h2 className="text-[1.25rem] select-none" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
-        </div>
-
-        {/* NOTE - MOBILE HOW IT WORKS */}
-        <div className="sm:hidden w-full flex flex-col relative top-0 place-self-center py-4 h-[30vh]  z-[1]  items-center justify-center">
-          <motion.h1
-            className="
-          text-[2.3rem] 
-          leading-none select-none"
-            initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }} style={styles.hIWHeader}>HOW IT WORKS</motion.h1>
-          <motion.h2 className="select-none text-[1.75rem]" initial={{ opacity: 0, y: -10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: false }} transition={{ duration: animationTokens.duration3 * 1.25, delay: animationTokens.duration3 * 1.25 }} style={styles.hIWSubHeader}>In Three Steps</motion.h2>
-        </div>
-
-        <div className="sm:hidden h-[10px] sm:h-[140px]" />
-
-        <HowItWorksCards />
-
-
-      </div>
 
       {/* NOTE - FOOTER */}
       <IntegrityFooter />

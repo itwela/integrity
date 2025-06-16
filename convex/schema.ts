@@ -9,6 +9,17 @@ export default defineSchema({
     product_id: v.string(),
     createdAt: v.number(),
     name: v.string(),
+    tracking_number: v.optional(v.string()),
+    has_shipped: v.optional(v.boolean()),
+    address: v.optional(v.object({
+      name: v.string(),
+      line_1: v.string(),
+      line_2: v.optional(v.string()),
+      city: v.string(),
+      state: v.string(),
+      zip: v.string(),
+    })),
+    quantity_to_ship: v.optional(v.number()),
   }),
   music: defineTable({
     audio_files: v.array(v.object({
