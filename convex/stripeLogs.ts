@@ -56,11 +56,22 @@ export const getStripeLogsThatHaveNotShipped = query({
 
   args: {},
   handler: async (ctx, args) => {
-    const records = await ctx.db
+
+    const falseRecords = await ctx.db
+      .query('stripeLogs')
+      .filter((q) => q.eq(q.field('has_shipped'), false))
+      .order('desc')
+      .take(100);
+
+    const undefinedRecords = await ctx.db
       .query('stripeLogs')
       .filter((q) => q.eq(q.field('has_shipped'), undefined))
+      .order('desc')
       .take(1000);
-    return records.map(record => ({
+
+    const combinedRecords = [...falseRecords, ...undefinedRecords];
+
+    return combinedRecords.map(record => ({
       id: record._id,
       name: record.name,
       email: record.email,

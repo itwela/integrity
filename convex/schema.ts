@@ -20,7 +20,9 @@ export default defineSchema({
       zip: v.string(),
     })),
     quantity_to_ship: v.optional(v.number()),
-  }),
+  }).index('by_createdAt', ['createdAt'])
+    .index('by_has_shipped', ['has_shipped']),
+
   music: defineTable({
     audio_files: v.array(v.object({
       id: v.number(),

@@ -2,13 +2,15 @@
 
 import { useAudioContext } from '@/app/providers/AudioContextProvider';
 import { motion } from "framer-motion";
-import React from "react";
-import { FaLock } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaLock, FaFileDownload } from "react-icons/fa";
 import IntegrityButton from "../components/IntegrityButton";
 import IntegrityFooter from "../components/footer";
 import IntegrityHeader from "../components/header";
 import { useShippingToolContext } from "../providers/ShippingToolProvider";
 import { colors } from "../tokens/colors";
+import Toast from '../components/Toast';
+
 export default function AdminUpdates() {
 
     const [hasAccess, setHasAccess] = React.useState(false);
@@ -24,6 +26,8 @@ export default function AdminUpdates() {
     const [quantityToShip, setQuantityToShip] = React.useState<number | null>(null);
     const [toolMode, setToolMode] = React.useState<"trackingConfirmation" | "informationUpdate">("informationUpdate");
     const [address, setAddress] = React.useState<{ name: string; line_1: string; line_2?: string; city: string; state: string; zip: string; } | null>(null);
+    const [toastMessage, setToastMessage] = useState('');
+    const [showToast, setShowToast] = useState(false);
 
     React.useEffect(() => {
         checkIsAdminOnLoad();
@@ -89,7 +93,7 @@ export default function AdminUpdates() {
     const styles = {
         header: "text-2xl font-bold mb-4",
         paragraph: "text-sm text-gray-600",
-        table: "w-full",
+        table: "w-full max-w-[600px]",
         thead: "",
         th: "px-4 py-2 text-left text-sm font-medium ",
         tr: "cursor-pointer hover:bg-[#977B49] transition-colors",
@@ -110,6 +114,89 @@ export default function AdminUpdates() {
     // const testQuantityToShip = 1;
     // const testTrackingNumber = "1234567890";
 
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setToastMessage('Copied to clipboard!');
+        setShowToast(true);
+    };
+
+    const handleCopyFullAddress = () => {
+        const record = recordsNotShipped.find(record => record.id === selectedOrder);
+        if (!record?.address) return;
+
+        const { name, line_1, line_2, city, state, zip } = record.address;
+        const formattedAddress = [
+            name,
+            line_1,
+            line_2,
+            `${city}, ${state} ${zip}`
+        ].filter(Boolean).join('\n');
+
+        navigator.clipboard.writeText(formattedAddress);
+        setToastMessage('Full address copied!');
+        setShowToast(true);
+    };
+
+    const handleDownloadPDF = () => {
+        // Dynamically import jsPDF and jspdf-autotable
+        import('jspdf').then(({ default: jsPDF }) => {
+            import('jspdf-autotable').then(({ default: autoTable }) => {
+                const doc = new jsPDF();
+                
+                // Add title
+                doc.setFontSize(16);
+                doc.text('Orders to Ship', 14, 15);
+                
+                // Add date
+                doc.setFontSize(10);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+
+                // Prepare table data
+                const tableData = recordsNotShipped.map(record => {
+                    const address = record.address;
+                    const fullAddress = address ? [
+                        address.line_1,
+                        address.line_2,
+                        `${address.city}, ${address.state} ${address.zip}`
+                    ].filter(Boolean).join('\n') : '';
+
+                    return [
+                        record.name,
+                        record.email,
+                        fullAddress,
+                        record.quantity_to_ship?.toString() || '0'
+                    ];
+                });
+
+                // Add table
+                autoTable(doc, {
+                    head: [['Name', 'Email', 'Address', 'Quantity to Ship']],
+                    body: tableData,
+                    startY: 30,
+                    theme: 'grid',
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                    },
+                    headStyles: {
+                        fillColor: [151, 123, 73], // Your brand color #977B49
+                        textColor: 255,
+                        fontStyle: 'bold',
+                    },
+                    alternateRowStyles: {
+                        fillColor: [245, 245, 245],
+                    },
+                    columnStyles: {
+                        2: { cellWidth: 60 }, // Make address column wider
+                    },
+                });
+
+                // Save the PDF
+                doc.save('orders-to-ship.pdf');
+            });
+        });
+    };
+
     return (
         <>
             <IntegrityHeader showHeader={true} />
@@ -118,11 +205,18 @@ export default function AdminUpdates() {
 
                 {hasAccess && (
                     <>
-                        <div className="flex flex-row w-full h-full  px-4 gap-4  max-w-[500px] max-h-[500px] ">
+                        <div className="flex flex-row w-full h-full  px-4 gap-4  max-w-[700px] max-h-[500px] ">
                             <div className="flex flex-col w-full h-full gap-8">
                                 <div className="flex flex-col items-center justify-center text-center">
                                     <h1 className={styles.header}>Orders That Have Not Been Shipped Yet:</h1>
                                     <p className={styles.paragraph}>Once you select an order and click the button on the right, the order will be confirmed, and an update will be automatically sent to the customer. The email will no longer appear in this list as it will be marked as shipped!</p>
+                                    <button
+                                        onClick={handleDownloadPDF}
+                                        className="flex items-center gap-2 mt-2 px-4 py-2 bg-[#977B49] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                    >
+                                        <FaFileDownload />
+                                        Download PDF
+                                    </button>
                                 </div>
                                 <div className="flex flex-col justify-start h-full w-full overflow-y-auto rounded-lg border border-gray-200">
                                     <table className={styles.table}>
@@ -130,6 +224,8 @@ export default function AdminUpdates() {
                                             <tr>
                                                 <th className={styles.th}>Name</th>
                                                 <th className={styles.th}>Email</th>
+                                                <th className={styles.th}>Address</th>
+                                                <th className={styles.th}>Quantity to Ship</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -141,6 +237,8 @@ export default function AdminUpdates() {
                                                 >
                                                     <td className={styles.td}>{record.name}</td>
                                                     <td className={styles.td}>{record.email}</td>
+                                                    <td className={styles.td}>{record.address?.line_1}</td>
+                                                    <td className={styles.td}>{record.quantity_to_ship}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -156,7 +254,7 @@ export default function AdminUpdates() {
                             <button className="hover:cursor-pointer bg-[#977B49] text-white px-4 py-2 rounded-md" onClick={() => sendShippingConfirmationEmail(testEmail, testName, testTrackingNumber)}>Send Shipping Confirmation Email</button> */}
                                 </div>
                             </div>
-                            <div className="flex rounded-lg border border-gray-200 flex-col justify-between px-4 gap-2 h-max place-self-end">
+                            <div className="flex rounded-lg border border-gray-200 flex-col justify-between px-4 mb-8 gap-2 h-max place-self-end">
                                 <button
                                     className="hover:cursor-pointer"
                                     onMouseEnter={() => {
@@ -198,21 +296,22 @@ export default function AdminUpdates() {
 
                                                     <div className="grid grid-cols-2 w-full h-full">
                                                         <p className="text-md font-bold">Selected Order:</p>
-                                                        <p className="text-md font-bold text-[#977B49]">{selectedOrder}</p>
+                                                        <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>{selectedOrder}</p>
                                                         <p className="text-md font-bold">Name:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
                                                         <p className="text-md font-bold">Email:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
                                                         <p className="text-md font-bold">Address:</p>
                                                         <div className="flex place-self-end flex-col w-full h-full">
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={handleCopyFullAddress}>Click to copy full address</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
                                                         </div>
                                                         <p className="text-md font-bold">Quantity to Ship:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
 
 
                                                     </div>
@@ -245,21 +344,22 @@ export default function AdminUpdates() {
 
                                                     <div className="grid grid-cols-2 w-full h-full">
                                                         <p className="text-md font-bold">Selected Order:</p>
-                                                        <p className="text-md font-bold text-[#977B49]">{selectedOrder}</p>
+                                                        <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>{selectedOrder}</p>
                                                         <p className="text-md font-bold">Name:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
                                                         <p className="text-md font-bold">Email:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
                                                         <p className="text-md font-bold">Address:</p>
                                                         <div className="flex place-self-end flex-col w-full h-full">
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
-                                                            <p className="text-md font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={handleCopyFullAddress}>Click to copy full address</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
                                                         </div>
                                                         <p className="text-md font-bold">Quantity to Ship:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49]">{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
 
 
                                                     </div>
@@ -379,10 +479,13 @@ export default function AdminUpdates() {
                   </motion.div>
                 )}
 
-
-
-
             </div>
+
+            <Toast 
+                message={toastMessage}
+                isVisible={showToast}
+                onClose={() => setShowToast(false)}
+            />
 
             <IntegrityFooter />
         </>

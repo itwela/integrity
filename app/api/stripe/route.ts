@@ -3,7 +3,7 @@ import { ConvexHttpClient } from 'convex/browser';
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-import { sendNextStepsEmail } from '@/emails/actions';
+// import { sendNextStepsEmail } from '@/emails/actions';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
 
     console.log('Successfully processed Stripe checkout session');
 
-    await sendNextStepsEmail(email, name, address, quantity_to_ship);
+    // await sendNextStepsEmail(email, name, address, quantity_to_ship);
 
     return NextResponse.json({ status: 'ok' });
   } catch (err) {
