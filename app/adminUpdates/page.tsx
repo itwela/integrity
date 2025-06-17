@@ -17,6 +17,7 @@ export default function AdminUpdates() {
     const [email, setEmail] = React.useState("");
     const [isEmailValid, setIsEmailValid] = React.useState(false);
     const { audioRef } = useAudioContext();
+    const [goodEmail, setGoodEmail] = React.useState<string | null>(null);
 
     // const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
     const { recordsNotShipped } = useShippingToolContext();
@@ -28,36 +29,32 @@ export default function AdminUpdates() {
     const [address, setAddress] = React.useState<{ name: string; line_1: string; line_2?: string; city: string; state: string; zip: string; } | null>(null);
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     React.useEffect(() => {
-        checkIsAdminOnLoad();
+        setGoodEmail(localStorage.getItem('integrity-admin-email'));
     }, []);
 
-    // NEXT_PUBLIC_ADMIN_EMAIL
-    // const handleAccess = async () => {
-    //     const isAdminEmail = email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    //     const checkLocalStorage = localStorage.getItem('integrity-admin-email');
+    const filteredRecords = React.useMemo(() => {
+        if (!searchQuery) return recordsNotShipped;
+        return recordsNotShipped.filter(record => 
+            record.address?.line_1?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            record.address?.line_2?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            record.address?.city?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            record.address?.state?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            record.address?.zip?.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [recordsNotShipped, searchQuery]);
 
-    //     if (isAdminEmail && !checkLocalStorage) {
-    //         localStorage.setItem('integrity-admin-email', email);
-    //         setHasAccess(true);
-    //     } else if (isAdminEmail && checkLocalStorage) {
-    //         setHasAccess(true);
-    //     } else {
-    //         alert('You are not that guy pal, trust me, you are not that guy.');
-    //     }
-    // }
-
-    const checkIsAdminOnLoad = () => {
-        stopMusicTrack();
-        console.log('checkIsAdminOnLoad', isEmailValid);
-        const checkLocalStorage = localStorage.getItem('integrity-admin-email');
-        if (checkLocalStorage) {
+    const handleGoodEmail = () => {
+        if (goodEmail) {
             setHasAccess(true);
-        } else {
-            setHasAccess(false);
         }
     }
+
+    React.useEffect(() => {
+        handleGoodEmail();
+    }, [goodEmail]);
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const emailValue = e.target.value;
@@ -102,7 +99,6 @@ export default function AdminUpdates() {
     };
 
     // const testName = "John Doe";
-    // const testEmail = "deanandnostrand@gmail.com";
     // const testAddress = {
     //     name: "John Doe",
     //     line_1: "123 Main St",
@@ -205,71 +201,71 @@ export default function AdminUpdates() {
         <>
             <IntegrityHeader showHeader={true} />
 
-            <div className="flex flex-row items-center place-content-center justify-evenly h-screen w-full">
+            <div className="flex flex-row bg-black/90 items-center place-content-center justify-evenly h-screen w-full">
 
                 {hasAccess && (
                     <>
-                        <div className="flex flex-row w-full h-full  px-4 gap-4  max-w-[700px] max-h-[500px] ">
+                        <div className="flex flex-row w-full h-full px-4 gap-4 max-w-[700px] max-h-[500px] ">
                             <div className="flex flex-col w-full h-full gap-8">
                                 <div className="flex flex-col items-center justify-center text-center">
-                                    <h1 className={styles.header}>Orders That Have Not Been Shipped Yet:</h1>
-                                    <p className={styles.paragraph}>Once you select an order and click the button on the right, the order will be confirmed, and an update will be automatically sent to the customer. The email will no longer appear in this list as it will be marked as shipped!</p>
-                                    <button
-                                        onClick={handleDownloadPDF}
-                                        className="flex items-center gap-2 mt-2 px-4 py-2 bg-[#977B49] text-white rounded-lg hover:opacity-90 transition-opacity"
-                                    >
-                                        <FaFileDownload />
-                                        Download PDF
-                                    </button>
+                                    <h1 className={`${styles.header} text-white`}>Orders That Have Not Been Shipped Yet:</h1>
+                                    <p className={`${styles.paragraph} text-white`}>Once you select an order and click the button on the right, the order will be confirmed, and an update will be automatically sent to the customer. The email will no longer appear in this list as it will be marked as shipped!</p>
+                                    <div className="flex gap-4 mt-4">
+                                        <input
+                                            type="text"
+                                            placeholder="Search by address..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="px-4 py-2 bg-[#111] text-white border border-[#333] rounded-lg focus:outline-none focus:border-[#977B49] w-[300px]"
+                                        />
+                                        <button
+                                            onClick={handleDownloadPDF}
+                                            className="flex items-center gap-2 px-4 py-2 bg-[#977B49] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                        >
+                                            <FaFileDownload />
+                                            Download PDF
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="flex flex-col justify-start h-full w-full overflow-y-auto rounded-lg border border-gray-200">
                                     <table className={styles.table}>
                                         <thead className={styles.thead}>
                                             <tr>
-                                                <th className={styles.th}>Name</th>
-                                                <th className={styles.th}>Email</th>
-                                                <th className={styles.th}>Address</th>
-                                                <th className={styles.th}>Quantity to Ship</th>
+                                                <th className={`${styles.th} text-white`}>Name</th>
+                                                <th className={`${styles.th} text-white`}>Email</th>
+                                                <th className={`${styles.th} text-white`}>Address</th>
+                                                <th className={`${styles.th} text-white`}>Quantity to Ship</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {recordsNotShipped.map((record) => (
+                                            {filteredRecords.map((record) => (
                                                 <tr
                                                     key={record.id}
                                                     onClick={() => selectOrder(record.id)}
                                                     className={`${styles.tr} ${selectedOrder === record.id ? styles.selectedRow : ''}`}
                                                 >
-                                                    <td className={styles.td}>{record.name}</td>
-                                                    <td className={styles.td}>{record.email}</td>
-                                                    <td className={styles.td}>{record.address?.line_1}</td>
-                                                    <td className={styles.td}>{record.quantity_to_ship}</td>
+                                                    <td className={`${styles.td} text-white`}>{record.name}</td>
+                                                    <td className={`${styles.td} text-white`}>{record.email}</td>
+                                                    <td className={`${styles.td} text-white`}>{record.address?.line_1}</td>
+                                                    <td className={`${styles.td} text-white`}>{record.quantity_to_ship}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
 
-                                {/* NOTE: WHERE THE SEND BUTTONS FOR TESTING ARE LOCATED */}
                                 <div className="flex flex-col w-full h-max gap-2">
-
-                                    {/* <button onClick={() => sendNextStepsEmail(recordsNotShipped[0].email, recordsNotShipped[0].name, recordsNotShipped[0].address as { name: string; line_1: string; line_2?: string; city: string; state: string; zip: string; }, recordsNotShipped[0].quantity_to_ship as number)}>Send Next Steps Email</button>
-                        <button onClick={() => sendShippingConfirmationEmail(recordsNotShipped[0].email, recordsNotShipped[0].name, recordsNotShipped[0].tracking_number as string)}>Send Shipping Confirmation Email</button> */}
-                                    {/* <button className="hover:cursor-pointer bg-[#977B49] text-white px-4 py-2 rounded-md" onClick={() => sendNextStepsEmail(testEmail, testName, testAddress, testQuantityToShip)}>Send Next Steps Email</button>
-                            <button className="hover:cursor-pointer bg-[#977B49] text-white px-4 py-2 rounded-md" onClick={() => sendShippingConfirmationEmail(testEmail, testName, testTrackingNumber)}>Send Shipping Confirmation Email</button> */}
                                 </div>
                             </div>
 
-                            {/* NOTE - THESE BUTTONS ARE FOR SCROLLING THE TABLE */}
                             <div className="flex flex-col w-max place-self-end place-content-end h-full gap-2">
-                                {/* need to put the ocunt of orders that have not been shipped yet here */}
                                 <div className="flex flex-col text-right w-full h-max gap-2">
                                     <p className="text-2xl font-bold text-[#977B49]">Total: {recordsNotShipped.length}</p>
                                 </div>
 
-                                {/* NOTE - THESE BUTTONS ARE FOR SCROLLING THE TABLE */}
                                 <div className="flex rounded-lg border border-gray-200 flex-col justify-between px-4 mb-8 gap-2 h-max place-self-end">
                                     <button
-                                        className="hover:cursor-pointer"
+                                        className="hover:cursor-pointer text-white"
                                         onMouseEnter={() => {
                                             const container = document.querySelector('.overflow-y-auto');
                                             if (container) container.scrollTop = 0;
@@ -279,7 +275,7 @@ export default function AdminUpdates() {
                                     </button>
                                     <span></span>
                                     <button
-                                        className="hover:cursor-pointer"
+                                        className="hover:cursor-pointer text-white"
                                         onMouseEnter={() => {
                                             const container = document.querySelector('.overflow-y-auto');
                                             if (container) container.scrollTop = container.scrollHeight;
@@ -297,10 +293,9 @@ export default function AdminUpdates() {
                             <div className="flex flex-col w-max gap-4 place-content-center place-items-center justify-center">
 
                                 <div className="flex flex-row w-full h-full gap-4 place-items-center justify-center p-2 border border-gray-200 rounded-lg p-4 gap-8">
-                                    <button className={`hover:cursor-pointer px-4 py-2 rounded-full ${toolMode === "trackingConfirmation" ? "bg-[#977B49] text-white" : ""}`} onMouseEnter={() => setToolMode("trackingConfirmation")}>Confirm Shipment</button>
+                                    <button className={`hover:cursor-pointer px-4 py-2 rounded-full ${toolMode === "trackingConfirmation" ? "bg-[#977B49] text-white" : "text-white"}`} onMouseEnter={() => setToolMode("trackingConfirmation")}>Confirm Shipment</button>
                                 </div>
 
-                                {/* the selected order will be shown here */}
                                 {toolMode === "trackingConfirmation" && (
                                     <>
                                         {selectedOrder &&
@@ -309,13 +304,13 @@ export default function AdminUpdates() {
                                                 <div className="flex flex-col w-full h-full gap-8" >
 
                                                     <div className="grid grid-cols-2 w-full h-full">
-                                                        <p className="text-md font-bold">Selected Order:</p>
+                                                        <p className="text-md font-bold text-white">Selected Order:</p>
                                                         <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>{selectedOrder}</p>
-                                                        <p className="text-md font-bold">Name:</p>
+                                                        <p className="text-md font-bold text-white">Name:</p>
                                                         <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
-                                                        <p className="text-md font-bold">Email:</p>
+                                                        <p className="text-md font-bold text-white">Email:</p>
                                                         <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
-                                                        <p className="text-md font-bold">Address:</p>
+                                                        <p className="text-md font-bold text-white">Address:</p>
                                                         <div className="flex place-self-end flex-col w-full h-full">
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={handleCopyFullAddress}>Click to copy full address</p>
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
@@ -324,21 +319,17 @@ export default function AdminUpdates() {
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
                                                         </div>
-                                                        <p className="text-md font-bold">Quantity to Ship:</p>
+                                                        <p className="text-md font-bold text-white">Quantity to Ship:</p>
                                                         <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
 
-
                                                     </div>
 
                                                     <div className="flex flex-col w-full h-full gap-4 place-items-center">
-                                                        {/* enter tracking number here */}
-                                                        <input value={trackingNumber || ''} onChange={(e) => setTrackingNumber(e.target.value)} type="text" placeholder="Tracking Number" className="w-full max-w-[300px]  p-2 border border-gray-300 rounded-md" />
+                                                        <input value={trackingNumber || ''} onChange={(e) => setTrackingNumber(e.target.value)} type="text" placeholder="Tracking Number" className="w-full max-w-[300px] p-2 border border-gray-300 rounded-md" />
                                                     </div>
 
-                                                    {/* TODO */}
                                                     <div className="flex flex-col w-full h-full gap-4 place-items-center">
                                                         <IntegrityButton backgroundColor="#977B49" onClick={() => {
-                                                            // updateShippedStatus(selectedOrder as Id<"stripeLogs">, true, trackingNumber as string, address as { name: string; line_1: string; line_2?: string; city: string; state: string; zip: string; });
                                                             console.log(selectedOrder, trackingNumber, address, quantityToShip);
                                                         }}>Confirm Shipment</IntegrityButton>
                                                     </div>
@@ -357,13 +348,13 @@ export default function AdminUpdates() {
                                                 <div className="flex flex-col w-full h-full gap-8" >
 
                                                     <div className="grid grid-cols-2 w-full h-full">
-                                                        <p className="text-md font-bold">Selected Order:</p>
+                                                        <p className="text-md font-bold text-white">Selected Order:</p>
                                                         <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>{selectedOrder}</p>
-                                                        <p className="text-md font-bold">Name:</p>
+                                                        <p className="text-md font-bold text-white">Name:</p>
                                                         <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
-                                                        <p className="text-md font-bold">Email:</p>
+                                                        <p className="text-md font-bold text-white">Email:</p>
                                                         <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
-                                                        <p className="text-md font-bold">Address:</p>
+                                                        <p className="text-md font-bold text-white">Address:</p>
                                                         <div className="flex place-self-end flex-col w-full h-full">
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={handleCopyFullAddress}>Click to copy full address</p>
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
@@ -372,9 +363,8 @@ export default function AdminUpdates() {
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
                                                         </div>
-                                                        <p className="text-md font-bold">Quantity to Ship:</p>
+                                                        <p className="text-md font-bold text-white">Quantity to Ship:</p>
                                                         <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
-
 
                                                     </div>
 
@@ -389,9 +379,6 @@ export default function AdminUpdates() {
                                                         </div>
                                                     </div>
 
-                                                    {/* TODO */}
-
-
                                                 </div>
                                             </>
                                         }
@@ -403,90 +390,6 @@ export default function AdminUpdates() {
                         </div>
 
                     </>
-                )}
-
-                {!hasAccess && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.4 }}
-                        className="flex h-[100dvh] items-center justify-center px-4 overflow-hidden w-full max-w-[800px]"
-                    >
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: 0.2 }}
-                            className="w-[90%] sm:w-[50%] max-h-[70dvh] bg-[#1a1a1a] rounded-2xl py-12 px-6 flex flex-col items-center gap-8"
-                        >
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.4, delay: 0.4 }}
-                                className="relative p-[30px] flex items-center justify-center rounded-full"
-                            >
-                                {[...Array(8)].map((_, i) => (
-                                    <motion.span
-                                        key={i}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.6 + (i * 0.1),
-                                        }}
-                                        className="absolute w-2 h-2 bg-gray-600 translate-x-[-50%] translate-y-[-50%] rounded-full"
-                                        style={{
-                                            top: `${50 - 45 * Math.sin(i * Math.PI / 4)}%`,
-                                            left: `${50 - 45 * Math.cos(i * Math.PI / 4)}%`,
-                                        }}
-                                    />
-                                ))}
-                                <FaLock className="text-4xl text-[#C4A962]" />
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.4, delay: 0.6 }}
-                                className="w-full max-w-md space-y-6"
-                            >
-                                <div className="space-y-2">
-                                    <motion.label
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.7 }}
-                                        style={{
-                                            fontFamily: 'boldMain',
-                                        }}
-                                        className="block text-gray-400 text-sm font-bold"
-                                    >
-                                        Email:
-                                    </motion.label>
-                                    <motion.input
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ duration: 0.4, delay: 0.8 }}
-                                        type="email"
-                                        value={email}
-                                        onChange={handleEmailChange}
-                                        placeholder="Enter your email"
-                                        style={{
-                                            backgroundColor: colors.grey,
-                                            fontFamily: 'main',
-                                        }}
-                                        className="w-full p-3 text-white border border-gray-700 rounded-lg focus:outline-none focus:border-[#C4A962]"
-                                    />
-                                </div>
-
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    transition={{ duration: 0.4, delay: 1 }}
-                                    className="w-full h-px bg-gray-700 my-6"
-                                />
-
-                            </motion.div>
-                        </motion.div>
-                    </motion.div>
                 )}
 
             </div>

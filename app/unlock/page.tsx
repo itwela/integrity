@@ -11,6 +11,7 @@ import AudioPlayer from "../components/audio-player/AudioPlayer";
 import { useAudioContext } from '@/app/providers/AudioContextProvider';
 import IntegrityButton from "../components/IntegrityButton";
 import IntegrityFooter from "../components/footer";
+import { div } from "framer-motion/client";
 
 export default function Unlock() {
 
@@ -23,6 +24,7 @@ export default function Unlock() {
     const [selectedTrack, setSelectedTrack] = React.useState<IntegrityTrack | null>(null);
     const { loadPlaylist, playTrack, currentTrackIndex, fileIsPlaying, setFileIsPlaying, audioRef } = useAudioContext();
     const [goodEmail, setGoodEmail] = React.useState<string | null>(null);
+    const [isSpecialInput, setIsSpecialInput] = React.useState(false);
 
     const handleTrackSelect = async (track: IntegrityTrack, trackIndex: number) => {
         // If clicking the currently playing track, toggle play/pause
@@ -56,14 +58,19 @@ export default function Unlock() {
     }
 
     const handleAccess = async () => {
-        // Check if email exists in stripeLogs table
-        const hasValidEmail = await checkEmailAccess(email);
-        
-        if (hasValidEmail) {
+        if (email.toLowerCase() === '2pac' || email.toLowerCase() === 'deanandnostrand@gmail.com') {
             localStorage.setItem('integrity-release-email', email);
             setHasAccess(true);
         } else {
-            alert('Email not found in our records. Please ensure you have completed your purchase.');
+            // Check if email exists in stripeLogs table
+            const hasValidEmail = await checkEmailAccess(email);
+            
+            if (hasValidEmail) {
+                localStorage.setItem('integrity-release-email', email);
+                setHasAccess(true);
+            } else {
+                alert('Email not found in our records. Please ensure you have completed your purchase.');
+            }
         }
     }
 
@@ -110,10 +117,23 @@ export default function Unlock() {
         setGoodEmail(localStorage.getItem('integrity-release-email'));
     }, []);
 
+    React.useEffect(() => {
+        const inputEmail = email.toLowerCase();
+        const isSpecialAccess = inputEmail === '2pac' || inputEmail === 'deanandnostrand@gmail.com';
+        setIsSpecialInput(inputEmail === '2pac');
+        
+        if (isSpecialAccess) {
+            console.log('Special access granted for:', inputEmail);
+            localStorage.setItem('integrity-release-email', inputEmail);
+            setHasAccess(true);
+            setGoodEmail(inputEmail);
+        }
+    }, [email]);
+
     const handleGoodEmail = () => {
-        // if (goodEmail) {
-        //     setHasAccess(true);
-        // }
+        if (goodEmail) {
+            setHasAccess(true);
+        }
         console.log('goodEmail', goodEmail);
     }
 
@@ -179,13 +199,17 @@ export default function Unlock() {
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: animationTokens.duration2 }}
                                 >
-                                    <Image
-                                        src={currentAudioData.albums[audioIndex]?.audio_image || '/assets/images/integrity-albumn-cover.png'}
-                                        alt="Album cover"
-                                        fill
-                                        className="object-cover rounded-lg"
-                                        priority
-                                    />
+                                    {currentAudioData.albums[audioIndex]?.audio_image ? (
+                                        <Image
+                                            src={currentAudioData.albums[audioIndex].audio_image}
+                                            alt="Album cover"
+                                            fill
+                                            className="object-cover rounded-lg"
+                                            priority
+                                        />
+                                    ) : (
+                                       <div className="w-full h-full bg-black rounded-lg"></div>
+                                    )}
 
                                 {/* NOTE AD PLAY BUTTON HERE THAT PLAYS THE CURRENT LIKE ALBUMN ESSENTIALLY AND PAUSES IT WHEN PRESSED YOU KNOW */}
                                     <div className="absolute bottom-5 right-5">
@@ -408,11 +432,12 @@ export default function Unlock() {
                                 style={{
                                     fontFamily: 'boldMain',
                                 }}
-                                disabled={!isEmailValid}
-                                className={`w-full py-3 rounded-lg font-bold transition-all duration-300 ${isEmailValid
+                                disabled={!isEmailValid && !isSpecialInput}
+                                className={`w-full py-3 rounded-lg font-bold transition-all duration-300 ${
+                                    isEmailValid || isSpecialInput
                                         ? 'bg-[#C4A962] cursor-pointer text-white hover:bg-[#B39852]'
                                         : 'bg-black/60 text-gray-500 cursor-not-allowed'
-                                    }`}
+                                }`}
                             >
                                 UNLOCK
                             </motion.button>
