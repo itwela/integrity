@@ -1,22 +1,18 @@
 'use client';
 
-import { useAudioContext } from '@/app/providers/AudioContextProvider';
-import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { FaLock, FaFileDownload } from "react-icons/fa";
+import { FaFileDownload } from "react-icons/fa";
 import IntegrityButton from "../components/IntegrityButton";
+import Toast from '../components/Toast';
 import IntegrityFooter from "../components/footer";
 import IntegrityHeader from "../components/header";
 import { useShippingToolContext } from "../providers/ShippingToolProvider";
-import { colors } from "../tokens/colors";
-import Toast from '../components/Toast';
 
 export default function AdminUpdates() {
 
     const [hasAccess, setHasAccess] = React.useState(false);
-    const [email, setEmail] = React.useState("");
-    const [isEmailValid, setIsEmailValid] = React.useState(false);
-    const { audioRef } = useAudioContext();
+    const [email] = React.useState("");
+    const [isEmailValid] = React.useState(false);
     const [goodEmail, setGoodEmail] = React.useState<string | null>(null);
 
     // const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
@@ -33,6 +29,7 @@ export default function AdminUpdates() {
 
     React.useEffect(() => {
         setGoodEmail(localStorage.getItem('integrity-admin-email'));
+        console.log('isEmailValid', isEmailValid);
     }, []);
 
     const filteredRecords = React.useMemo(() => {
@@ -56,11 +53,6 @@ export default function AdminUpdates() {
         handleGoodEmail();
     }, [goodEmail]);
 
-    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const emailValue = e.target.value;
-        setEmail(emailValue);
-        setIsEmailValid(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue));
-    }
 
     React.useEffect(() => {
         if (email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
@@ -69,11 +61,6 @@ export default function AdminUpdates() {
         }
     }, [email]);
 
-    const stopMusicTrack = () => {
-        if (audioRef.current) {
-            audioRef.current.pause();
-        }
-    }
 
     const selectOrder = (orderId: string) => {
         setTrackingNumber(null);

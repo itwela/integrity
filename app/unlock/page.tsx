@@ -11,7 +11,6 @@ import AudioPlayer from "../components/audio-player/AudioPlayer";
 import { useAudioContext } from '@/app/providers/AudioContextProvider';
 import IntegrityButton from "../components/IntegrityButton";
 import IntegrityFooter from "../components/footer";
-import { div } from "framer-motion/client";
 
 export default function Unlock() {
 
