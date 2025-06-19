@@ -24,7 +24,7 @@ interface ShippingUser {
 
 interface ShippingToolContextProps {
     recordsNotShipped: ShippingUser[];
-    updateShippedStatus: (id: Id<"stripeLogs">, has_shipped: boolean, tracking_number: string, address: object) => Promise<void>;
+    updateShippedStatus: (id: Id<"stripeLogs">, has_shipped: boolean, tracking_number: string) => Promise<void>;
 }
 
 const ShippingToolContext = createContext<ShippingToolContextProps | null>(null);

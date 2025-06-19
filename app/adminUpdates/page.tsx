@@ -7,6 +7,7 @@ import Toast from '../components/Toast';
 import IntegrityFooter from "../components/footer";
 import IntegrityHeader from "../components/header";
 import { useShippingToolContext } from "../providers/ShippingToolProvider";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function AdminUpdates() {
 
@@ -16,7 +17,7 @@ export default function AdminUpdates() {
     const [goodEmail, setGoodEmail] = React.useState<string | null>(null);
 
     // const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
-    const { recordsNotShipped } = useShippingToolContext();
+    const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
 
     const [selectedOrder, setSelectedOrder] = React.useState<string | null>(null);
     const [trackingNumber, setTrackingNumber] = React.useState<string | null>(null);
@@ -71,6 +72,7 @@ export default function AdminUpdates() {
         setSelectedOrder(orderId);
         const foundAddress = recordsNotShipped.find(record => record.id === orderId)?.address;
         setAddress(foundAddress || null);
+        setQuantityToShip(recordsNotShipped.find(record => record.id === orderId)?.quantity_to_ship || null);
         console.log('Selected order:', recordsNotShipped.find(record => record.id === orderId));
     }
 
@@ -318,6 +320,7 @@ export default function AdminUpdates() {
                                                     <div className="flex flex-col w-full h-full gap-4 place-items-center">
                                                         <IntegrityButton backgroundColor="#977B49" onClick={() => {
                                                             console.log(selectedOrder, trackingNumber, address, quantityToShip);
+                                                            updateShippedStatus(selectedOrder as Id<"stripeLogs">, true, trackingNumber || '');
                                                         }}>Confirm Shipment</IntegrityButton>
                                                     </div>
 
