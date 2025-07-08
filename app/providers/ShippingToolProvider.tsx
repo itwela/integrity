@@ -46,7 +46,7 @@ export default function ShippingToolProvider({ children }: {
         const { email, name } = record;
 
 
-        await updateShippedStatusMutation({ id, has_shipped });
+        await updateShippedStatusMutation({ id, has_shipped, tracking_number });
         // TODO send email to user with resend and tracking number
         await sendShippingConfirmationEmail(email, name, tracking_number);
     }

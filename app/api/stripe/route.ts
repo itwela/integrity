@@ -36,19 +36,19 @@ export async function POST(request: Request) {
     
     // Extract required fields from checkout session
     const email = checkoutSession.customer_details?.email;
-    const name = checkoutSession.customer_details?.name;
+    const name = checkoutSession.collected_information?.shipping_details?.name || checkoutSession.customer_details?.name;
     const payment_amount = checkoutSession.amount_total;
     const payment_status = checkoutSession.payment_status;
     const session_id = checkoutSession.id;
     const tracking_number = checkoutSession.metadata?.tracking_number || '';
     const has_shipped = checkoutSession.metadata?.has_shipped || false;
     const address = {
-      name: checkoutSession.customer_details?.name || 'no-name-provided',
-      line_1: checkoutSession.customer_details?.address?.line1 || 'no-address-provided',
-      line_2: checkoutSession.customer_details?.address?.line2 || '',
-      city: checkoutSession.customer_details?.address?.city || 'no-city-provided',
-      state: checkoutSession.customer_details?.address?.state || 'no-state-provided',
-      zip: checkoutSession.customer_details?.address?.postal_code || 'no-zip-provided',
+      name: checkoutSession.collected_information?.shipping_details?.name || checkoutSession.customer_details?.name || 'no-name-provided',
+      line_1: checkoutSession.collected_information?.shipping_details?.address?.line1 || 'no-address-provided',
+      line_2: checkoutSession.collected_information?.shipping_details?.address?.line2 || '',
+      city: checkoutSession.collected_information?.shipping_details?.address?.city || 'no-city-provided',
+      state: checkoutSession.collected_information?.shipping_details?.address?.state || 'no-state-provided',
+      zip: checkoutSession.collected_information?.shipping_details?.address?.postal_code || 'no-zip-provided',
     };
     const quantity_to_ship = checkoutSession.metadata?.quantity_to_ship || 1;
 

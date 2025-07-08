@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { FaFileDownload } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import IntegrityButton from "../components/IntegrityButton";
 import Toast from '../components/Toast';
 import IntegrityFooter from "../components/footer";
@@ -15,6 +16,7 @@ export default function AdminUpdates() {
     const [email] = React.useState("");
     const [isEmailValid] = React.useState(false);
     const [goodEmail, setGoodEmail] = React.useState<string | null>(null);
+    const [privacyMode, setPrivacyMode] = useState(false);
 
     // const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
     const { recordsNotShipped, updateShippedStatus } = useShippingToolContext();
@@ -27,6 +29,7 @@ export default function AdminUpdates() {
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedAddresses, setSelectedAddresses] = useState<Set<string>>(new Set());
 
     React.useEffect(() => {
         setGoodEmail(localStorage.getItem('integrity-admin-email'));
@@ -74,6 +77,18 @@ export default function AdminUpdates() {
         setAddress(foundAddress || null);
         setQuantityToShip(recordsNotShipped.find(record => record.id === orderId)?.quantity_to_ship || null);
         console.log('Selected order:', recordsNotShipped.find(record => record.id === orderId));
+    }
+
+    const toggleAddressSelection = (orderId: string) => {
+        setSelectedAddresses(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(orderId)) {
+                newSet.delete(orderId);
+            } else {
+                newSet.add(orderId);
+            }
+            return newSet;
+        });
     }
 
     const styles = {
@@ -129,14 +144,19 @@ export default function AdminUpdates() {
                 const currentDate = new Date().toLocaleDateString();
                 const doc = new jsPDF();
 
+                // Determine which records to include in PDF
+                const recordsToInclude = selectedAddresses.size > 0 
+                    ? recordsNotShipped.filter(record => selectedAddresses.has(record.id))
+                    : recordsNotShipped;
+
                 // Add title with date and order count
                 doc.setFontSize(16);
                 doc.text(`Integrity Orders to Ship - ${currentDate}`, 14, 15);
                 doc.setFontSize(14);
-                doc.text(`Total Orders: ${recordsNotShipped.length}`, 14, 22);
+                doc.text(`Total Orders: ${recordsToInclude.length}`, 14, 22);
 
                 // Prepare table data
-                const tableData = recordsNotShipped.map(record => {
+                const tableData = recordsToInclude.map(record => {
                     const address = record.address;
                     const fullAddress = address ? [
                         address.name,
@@ -186,6 +206,17 @@ export default function AdminUpdates() {
         });
     };
 
+    const PrivacyText = ({ children, className = "" }: { children: React.ReactNode, className?: string }) => {
+        if (privacyMode) {
+            return (
+                <span className={`${className} blur-sm select-none`} style={{ filter: 'blur(4px)' }}>
+                    {children}
+                </span>
+            );
+        }
+        return <span className={className}>{children}</span>;
+    };
+
     return (
         <>
             <IntegrityHeader showHeader={true} />
@@ -214,12 +245,28 @@ export default function AdminUpdates() {
                                             <FaFileDownload />
                                             Download PDF
                                         </button>
+                                        <button
+                                            onClick={() => setPrivacyMode(!privacyMode)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-[#333] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                        >
+                                            {privacyMode ? <FaEyeSlash /> : <FaEye />}
+                                            {privacyMode ? 'Show' : 'Hide'} Info
+                                        </button>
+                                        {selectedAddresses.size > 0 && (
+                                            <button
+                                                onClick={() => setSelectedAddresses(new Set())}
+                                                className="flex items-center gap-2 px-4 py-2 bg-[#666] text-white rounded-lg hover:opacity-90 transition-opacity"
+                                            >
+                                                Clear Selection
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="flex flex-col justify-start h-full w-full overflow-y-auto rounded-lg border border-gray-200">
                                     <table className={styles.table}>
                                         <thead className={styles.thead}>
                                             <tr>
+                                                <th className={`${styles.th} text-white`}>Select</th>
                                                 <th className={`${styles.th} text-white`}>Name</th>
                                                 <th className={`${styles.th} text-white`}>Email</th>
                                                 <th className={`${styles.th} text-white`}>Address</th>
@@ -230,13 +277,43 @@ export default function AdminUpdates() {
                                             {filteredRecords.map((record) => (
                                                 <tr
                                                     key={record.id}
-                                                    onClick={() => selectOrder(record.id)}
                                                     className={`${styles.tr} ${selectedOrder === record.id ? styles.selectedRow : ''}`}
                                                 >
-                                                    <td className={`${styles.td} text-white`}>{record.name}</td>
-                                                    <td className={`${styles.td} text-white`}>{record.email}</td>
-                                                    <td className={`${styles.td} text-white`}>{record.address?.line_1}</td>
-                                                    <td className={`${styles.td} text-white`}>{record.quantity_to_ship}</td>
+                                                    <td className={`${styles.td} text-white`}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedAddresses.has(record.id)}
+                                                            onChange={(e) => {
+                                                                e.stopPropagation();
+                                                                toggleAddressSelection(record.id);
+                                                            }}
+                                                            className="w-4 h-4 text-[#977B49] bg-gray-100 border-gray-300 rounded focus:ring-[#977B49] focus:ring-2"
+                                                        />
+                                                    </td>
+                                                    <td 
+                                                        className={`${styles.td} text-white`}
+                                                        onClick={() => selectOrder(record.id)}
+                                                    >
+                                                        <PrivacyText>{record.name}</PrivacyText>
+                                                    </td>
+                                                    <td 
+                                                        className={`${styles.td} text-white`}
+                                                        onClick={() => selectOrder(record.id)}
+                                                    >
+                                                        <PrivacyText>{record.email}</PrivacyText>
+                                                    </td>
+                                                    <td 
+                                                        className={`${styles.td} text-white`}
+                                                        onClick={() => selectOrder(record.id)}
+                                                    >
+                                                        <PrivacyText>{record.address?.line_1}</PrivacyText>
+                                                    </td>
+                                                    <td 
+                                                        className={`${styles.td} text-white`}
+                                                        onClick={() => selectOrder(record.id)}
+                                                    >
+                                                        <PrivacyText>{record.quantity_to_ship}</PrivacyText>
+                                                    </td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -250,6 +327,9 @@ export default function AdminUpdates() {
                             <div className="flex flex-col w-max place-self-end place-content-end h-full gap-2">
                                 <div className="flex flex-col text-right w-full h-max gap-2">
                                     <p className="text-2xl font-bold text-[#977B49]">Total: {recordsNotShipped.length}</p>
+                                    {selectedAddresses.size > 0 && (
+                                        <p className="text-lg font-bold text-white">Selected: {selectedAddresses.size}</p>
+                                    )}
                                 </div>
 
                                 <div className="flex rounded-lg border border-gray-200 flex-col justify-between px-4 mb-8 gap-2 h-max place-self-end">
@@ -294,22 +374,40 @@ export default function AdminUpdates() {
 
                                                     <div className="grid grid-cols-2 w-full h-full">
                                                         <p className="text-md font-bold text-white">Selected Order:</p>
-                                                        <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>{selectedOrder}</p>
+                                                        <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>
+                                                            <PrivacyText>{selectedOrder}</PrivacyText>
+                                                        </p>
                                                         <p className="text-md font-bold text-white">Name:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>
+                                                            <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</PrivacyText>
+                                                        </p>
                                                         <p className="text-md font-bold text-white">Email:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>
+                                                            <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</PrivacyText>
+                                                        </p>
                                                         <p className="text-md font-bold text-white">Address:</p>
                                                         <div className="flex place-self-end flex-col w-full h-full">
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={handleCopyFullAddress}>Click to copy full address</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2 || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</PrivacyText>
+                                                            </p>
                                                         </div>
                                                         <p className="text-md font-bold text-white">Quantity to Ship:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>
+                                                            <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</PrivacyText>
+                                                        </p>
 
                                                     </div>
 
@@ -339,22 +437,40 @@ export default function AdminUpdates() {
 
                                                     <div className="grid grid-cols-2 w-full h-full">
                                                         <p className="text-md font-bold text-white">Selected Order:</p>
-                                                        <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>{selectedOrder}</p>
+                                                        <p className="text-md font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(selectedOrder)}>
+                                                            <PrivacyText>{selectedOrder}</PrivacyText>
+                                                        </p>
                                                         <p className="text-md font-bold text-white">Name:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.name || '')}>
+                                                            <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.name}</PrivacyText>
+                                                        </p>
                                                         <p className="text-md font-bold text-white">Email:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.email || '')}>
+                                                            <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.email}</PrivacyText>
+                                                        </p>
                                                         <p className="text-md font-bold text-white">Address:</p>
                                                         <div className="flex place-self-end flex-col w-full h-full">
                                                             <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={handleCopyFullAddress}>Click to copy full address</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2 || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</p>
-                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1 || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_1}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2 || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.line_2}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.city}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.state}</PrivacyText>
+                                                            </p>
+                                                            <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip || '')}>
+                                                                <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.address?.zip}</PrivacyText>
+                                                            </p>
                                                         </div>
                                                         <p className="text-md font-bold text-white">Quantity to Ship:</p>
-                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</p>
+                                                        <p className="text-md place-self-end font-bold text-[#977B49] cursor-pointer hover:opacity-80" onClick={() => handleCopy(recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship?.toString() || '')}>
+                                                            <PrivacyText>{recordsNotShipped.find(record => record.id === selectedOrder)?.quantity_to_ship}</PrivacyText>
+                                                        </p>
 
                                                     </div>
 

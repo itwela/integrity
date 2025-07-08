@@ -23,6 +23,9 @@ export const insertStripeData = mutation({
     quantity_to_ship: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // Calculate quantity based on payment amount (bottles are $65 each)
+    const calculatedQuantity = Math.floor(args.payment_amount / 6500); // 6500 cents = $65
+    
     await ctx.db.insert('stripeLogs', {
       email: args.email,
       payment_amount: args.payment_amount,
@@ -33,7 +36,7 @@ export const insertStripeData = mutation({
       tracking_number: args.tracking_number,
       has_shipped: args.has_shipped,
       address: args.address,
-      quantity_to_ship: args.quantity_to_ship,
+      quantity_to_ship: calculatedQuantity || args.quantity_to_ship || 1,
     });
   },
 
@@ -84,9 +87,9 @@ export const getStripeLogsThatHaveNotShipped = query({
 
 export const updateShippedStatus = mutation({
 
-  args: { id: v.id('stripeLogs'), has_shipped: v.boolean() },
+  args: { id: v.id('stripeLogs'), has_shipped: v.boolean(), tracking_number: v.string() },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { has_shipped: args.has_shipped });
+    await ctx.db.patch(args.id, { has_shipped: args.has_shipped, tracking_number: args.tracking_number });
   },
 
 });
