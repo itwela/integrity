@@ -46,10 +46,15 @@ export const checkEmailAccess = query({
 
   args: { email: v.string() },
   handler: async (ctx, args) => {
-    const record = await ctx.db
+    // Perform case-insensitive email lookup
+    const allRecords = await ctx.db
       .query('stripeLogs')
-      .filter((q) => q.eq(q.field('email'), args.email))
-      .first();
+      .collect();
+    
+    const record = allRecords.find(
+      (r) => r.email.toLowerCase() === args.email.toLowerCase()
+    );
+    
     return !!record;
   },
 

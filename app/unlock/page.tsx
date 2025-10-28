@@ -61,8 +61,8 @@ export default function Unlock() {
             localStorage.setItem('integrity-release-email', email);
             setHasAccess(true);
         } else {
-            // Check if email exists in stripeLogs table
-            const hasValidEmail = await checkEmailAccess(email);
+            // Check if email exists in stripeLogs table (case-insensitive)
+            const hasValidEmail = await checkEmailAccess(email.toLowerCase());
             
             if (hasValidEmail) {
                 localStorage.setItem('integrity-release-email', email);

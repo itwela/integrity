@@ -412,7 +412,7 @@ export default function AdminUpdates() {
                                                     </div>
 
                                                     <div className="flex flex-col w-full h-full gap-4 place-items-center">
-                                                        <input value={trackingNumber || ''} onChange={(e) => setTrackingNumber(e.target.value)} type="text" placeholder="Tracking Number" className="w-full max-w-[300px] p-2 border border-gray-300 rounded-md" />
+                                                        <input value={trackingNumber || ''} onChange={(e) => setTrackingNumber(e.target.value)} type="text" placeholder="Tracking Number" className="w-full max-w-[300px] text-white p-2 border border-gray-300 rounded-md" />
                                                     </div>
 
                                                     <div className="flex flex-col w-full h-full gap-4 place-items-center">
