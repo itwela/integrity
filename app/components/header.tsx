@@ -6,6 +6,7 @@ import { animationTokens } from "@/app/tokens/animationTokens";
 import { FaBars } from "react-icons/fa";
 import { useState } from "react";
 import Link from "next/link";
+import { useStockContext } from "../providers/StockProvider";
 
 interface IntegrityHeaderProps {
     showHeader: boolean;
@@ -13,6 +14,7 @@ interface IntegrityHeaderProps {
 
 export default function IntegrityHeader({ showHeader }: IntegrityHeaderProps) {
     const [menuOpen, setMenuOpen] = useState(false);
+    const { inStock } = useStockContext();
 
     const styles = {
         headerLogoText: {
@@ -35,7 +37,7 @@ export default function IntegrityHeader({ showHeader }: IntegrityHeaderProps) {
 
     const headerItems = [
         {
-            text: 'Purchase',
+            text: inStock ? 'Purchase' : 'Out of Stock',
             link: '#product-page-marker'
         },
         {

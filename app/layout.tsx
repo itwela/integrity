@@ -4,6 +4,7 @@ import "./globals.css";
 import { ConvexClientProvider } from "./providers/ConvexContextProvider";
 import AudioContextProvider from "./providers/AudioContextProvider";
 import ShippingToolProvider from "./providers/ShippingToolProvider";
+import StockProvider from "./providers/StockProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,9 @@ export default function RootLayout({
         <ConvexClientProvider>
           <AudioContextProvider>
             <ShippingToolProvider>
-              {children}
+              <StockProvider>
+                {children}
+              </StockProvider>
             </ShippingToolProvider>
           </AudioContextProvider>
         </ConvexClientProvider>

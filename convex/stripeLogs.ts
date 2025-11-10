@@ -54,6 +54,8 @@ export const checkEmailAccess = query({
     const record = allRecords.find(
       (r) => r.email.toLowerCase() === args.email.toLowerCase()
     );
+
+    console.log('record', record);
     
     return !!record;
   },

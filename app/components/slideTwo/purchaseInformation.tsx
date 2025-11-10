@@ -7,8 +7,10 @@ import Link from "next/link"
 import IntegrityButton from "../IntegrityButton"
 import IntegrityDivider from "../IntegrityDivider"
 import { textTokens } from "@/app/tokens/textTokens"
+import { useStockContext } from "@/app/providers/StockProvider"
 
 export default function PurchaseInformation({ firstPurchaseButtonInView }: { firstPurchaseButtonInView: boolean }) {
+    const { inStock } = useStockContext();
 
     const styles = {
         container: {
@@ -120,17 +122,29 @@ export default function PurchaseInformation({ firstPurchaseButtonInView }: { fir
                         transition={{ duration: animationTokens.duration1 / 4 }}
                         className="w-full"
                     >
-                        <Link href={paymentLink} target="_blank">
+                        {inStock ? (
+                            <Link href={paymentLink} target="_blank">
+                                <IntegrityButton
+                                    id="product-buy-now-button"
+                                    backgroundColor={colors.white}
+                                    borderColor={colors.primary}
+                                    textColor={colors.primary}
+                                    className="lg:text-[0.85rem] text-[0.60rem] select-none !w-full"
+                                >
+                                    PURCHASE
+                                </IntegrityButton>
+                            </Link>
+                        ) : (
                             <IntegrityButton
                                 id="product-buy-now-button"
                                 backgroundColor={colors.white}
                                 borderColor={colors.primary}
                                 textColor={colors.primary}
-                                className="lg:text-[0.85rem] text-[0.60rem] select-none !w-full"
+                                className="lg:text-[0.85rem] text-[0.60rem] select-none !w-full opacity-60 cursor-not-allowed"
                             >
-                                PURCHASE
+                                OUT OF STOCK
                             </IntegrityButton>
-                        </Link>
+                        )}
                     </motion.div>
                 </div>
 
@@ -189,17 +203,29 @@ export default function PurchaseInformation({ firstPurchaseButtonInView }: { fir
                         viewport={{ once: false }}
                         transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}
                     >
-                        <Link href={paymentLink} target="_blank">
+                        {inStock ? (
+                            <Link href={paymentLink} target="_blank">
+                                <IntegrityButton
+                                    id="product-buy-now-button"
+                                    backgroundColor={colors.white}
+                                    borderColor={colors.primary}
+                                    textColor={colors.primary}
+                                    className="text-[1.15rem] select-none"
+                                >
+                                    PURCHASE
+                                </IntegrityButton>
+                            </Link>
+                        ) : (
                             <IntegrityButton
                                 id="product-buy-now-button"
                                 backgroundColor={colors.white}
                                 borderColor={colors.primary}
                                 textColor={colors.primary}
-                                className="text-[1.15rem] select-none"
+                                className="text-[1.15rem] select-none opacity-60 cursor-not-allowed"
                             >
-                                PURCHASE
+                                OUT OF STOCK
                             </IntegrityButton>
-                        </Link>
+                        )}
                     </motion.div>
                 </div>
             </div>
@@ -242,17 +268,29 @@ export default function PurchaseInformation({ firstPurchaseButtonInView }: { fir
                         viewport={{ once: false }}
                         transition={{ duration: animationTokens.duration1, delay: animationTokens.duration1 }}
                     >
-                        <Link href={paymentLink} target="_blank">
+                        {inStock ? (
+                            <Link href={paymentLink} target="_blank">
+                                <IntegrityButton
+                                    id="product-buy-now-button"
+                                    backgroundColor={colors.white}
+                                    borderColor={colors.primary}
+                                    textColor={colors.primary}
+                                    className="text-[1.15rem] select-none"
+                                >
+                                    PURCHASE
+                                </IntegrityButton>
+                            </Link>
+                        ) : (
                             <IntegrityButton
                                 id="product-buy-now-button"
                                 backgroundColor={colors.white}
                                 borderColor={colors.primary}
                                 textColor={colors.primary}
-                                className="text-[1.15rem] select-none"
+                                className="text-[1.15rem] select-none opacity-60 cursor-not-allowed"
                             >
-                                PURCHASE
+                                OUT OF STOCK
                             </IntegrityButton>
-                        </Link>
+                        )}
                     </motion.div>
 
                 </div>
