@@ -11,7 +11,7 @@ const StockContext = createContext<StockContextProps | null>(null);
 export default function StockProvider({ children }: { children: React.ReactNode }) {
     // Change this value to control stock status
     // true = in stock, false = out of stock
-    const inStock = true; // <-- Change this to toggle stock status
+    const inStock = false; // <-- Change this to toggle stock status
     
     return (
         <StockContext.Provider value={{ inStock }}>
